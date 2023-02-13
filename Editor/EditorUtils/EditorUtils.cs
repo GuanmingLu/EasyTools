@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections;
 using System.Collections.Generic;
+using System.IO;
 using System.Linq;
 using System.Reflection;
 using EasyTools.Reflection;
@@ -35,6 +36,60 @@ namespace EasyTools.Editor {
 		public static void ChangedObjects(UnityEngine.Object[] objs, string message) {
 			Undo.RecordObjects(objs, message);
 			foreach (var obj in objs) EditorUtility.SetDirty(obj);
+		}
+
+		public static void BeginBoxGroup(string title, float spacing = 2) {
+			GUILayout.Space(spacing);
+
+			EditorGUILayout.BeginVertical(GUI.skin.box);
+			if (!string.IsNullOrEmpty(title)) {
+				EditorGUILayout.LabelField(title, EditorStyles.boldLabel);
+			}
+		}
+
+		public static void EndBoxGroup(float spacing = 2) {
+			EditorGUILayout.EndVertical();
+
+			GUILayout.Space(spacing);
+		}
+
+		public static string AssetPathToFullPath(string path) => Application.dataPath + path[6..];
+		public static string GetAssetFullPath(UnityEngine.Object obj) => AssetPathToFullPath(AssetDatabase.GetAssetPath(obj));
+
+		public static void ChooseProjectPath(ref string path) {
+			path = EditorGUILayout.TextArea(string.IsNullOrWhiteSpace(path) ? "请输入路径" : path);
+
+			if (GUILayout.Button("使用当前路径")) {
+				if (Selection.assetGUIDs.Length == 1) {
+					var p = AssetDatabase.GUIDToAssetPath(Selection.assetGUIDs[0]);
+					// 只有以 Assets 开头的路径才合法
+					if (p.StartsWith("Assets")) {
+						// 如果有扩展名（选中的是文件）则选择其文件夹
+						path = Path.HasExtension(p) ? Path.GetDirectoryName(p).Replace('\\', '/') : p;
+					}
+				}
+			}
+		}
+
+		public struct BoxGroupScope : IDisposable {
+			private float _spacing;
+
+			public BoxGroupScope(string title, float spacing = 2) {
+				_spacing = spacing;
+
+				GUILayout.Space(_spacing);
+
+				EditorGUILayout.BeginVertical(GUI.skin.box);
+				if (!string.IsNullOrEmpty(title)) {
+					EditorGUILayout.LabelField(title, EditorStyles.boldLabel);
+				}
+			}
+
+			public void Dispose() {
+				EditorGUILayout.EndVertical();
+
+				GUILayout.Space(_spacing);
+			}
 		}
 	}
 }
