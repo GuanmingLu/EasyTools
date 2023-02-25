@@ -24,9 +24,7 @@ namespace EasyTools.Events {
 		public void AddListener(Behaviour target, TDelegate callback, TargetRequirement requirement = TargetRequirement.ActiveAndEnabled)
 			=> _eventMap.Add(callback, (target, requirement));
 		protected IEnumerable<TDelegate> GetInvokeList() {
-			var actions = _eventMap.Keys;
-			foreach (var action in actions) {
-				var (target, req) = _eventMap[action];
+			foreach (var (action, (target, req)) in _eventMap) {
 				if (req == TargetRequirement.Any) yield return action;
 				else if (target == null) _eventMap.Remove(action);
 				else if (req switch {
