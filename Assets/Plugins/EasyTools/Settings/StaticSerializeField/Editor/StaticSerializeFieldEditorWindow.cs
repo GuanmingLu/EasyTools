@@ -6,7 +6,7 @@ using System.Linq;
 
 namespace EasyTools.Editor {
 	public class StaticSerializeFieldEditorWindow : EditorWindow {
-		[MenuItem("EasyTools/Static SerializeField")]
+		// [MenuItem("EasyTools/Static SerializeField")]
 		public static void Open() {
 			GetWindow<StaticSerializeFieldEditorWindow>();
 		}
