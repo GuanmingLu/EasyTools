@@ -6,6 +6,9 @@ using static EasyTools.EasyMath;
 namespace EasyTools {
 
 	public static class ListExtensions {
+
+		#region Linq
+
 		public static IEnumerable<(T item, int index)> WithIndex<T>(this IEnumerable<T> source, int startIndex = 0)
 			=> source.Select(item => (item, startIndex++));
 
@@ -23,6 +26,31 @@ namespace EasyTools {
 				}
 			}
 		}
+
+		public static Dictionary<TKey, TValue> ToDictionary<TKey, TValue>(this IEnumerable<KeyValuePair<TKey, TValue>> source) => new(source);
+
+		public static IEnumerable<TResult> SelectWhere<TSource, TResult>(this IEnumerable<TSource> source, Func<TSource, (bool select, TResult result)> selector) {
+			foreach (var item in source) {
+				var (select, result) = selector(item);
+				if (select) yield return result;
+			}
+		}
+
+		public static IEnumerable<TResult> SelectNotNull<TSource, TResult>(this IEnumerable<TSource> source, Func<TSource, TResult> selector) where TResult : class {
+			foreach (var item in source) {
+				var result = selector(item);
+				if (result != null) yield return result;
+			}
+		}
+
+		public static IEnumerable<TResult> SelectNotNull<TSource, TResult>(this IEnumerable<TSource> source, Func<TSource, TResult?> selector) where TResult : struct {
+			foreach (var item in source) {
+				var result = selector(item);
+				if (result is TResult value) yield return value;
+			}
+		}
+
+		#endregion
 
 		#region First & Last
 
@@ -98,11 +126,4 @@ namespace EasyTools {
 		}
 	}
 
-
-	public class AutoInitDict<TKey, TValue> : Dictionary<TKey, TValue> {
-		public new TValue this[TKey key] {
-			set => base[key] = value;
-			get => this.GetValueOrDefault(key);
-		}
-	}
 }

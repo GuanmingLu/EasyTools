@@ -23,4 +23,16 @@ namespace EasyTools {
 			return source[key];
 		}
 	}
+
+	public class AutoInitDict<TKey, TValue> : Dictionary<TKey, TValue> {
+		private Func<TKey, TValue> _initFunc;
+		public AutoInitDict(Func<TKey, TValue> initFunc) {
+			_initFunc = initFunc;
+		}
+
+		public new TValue this[TKey key] {
+			set => base[key] = value;
+			get => this.GetValueOrDefault(key, _initFunc == null ? default : _initFunc.Invoke(key));
+		}
+	}
 }

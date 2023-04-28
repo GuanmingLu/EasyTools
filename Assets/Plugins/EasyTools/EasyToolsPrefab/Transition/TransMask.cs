@@ -52,7 +52,7 @@ namespace EasyTools {
 		public static Coroutine HideMask(float fadeSeconds = 0.5f, uint color = 0x000000FF) {
 			SetColor(color);
 			EasyTween.Linear(fadeSeconds, Instance._mask.SetA, Instance._mask.color.a, 0)
-			.Then(() => EnableMask(false)).RunOn(Instance, ref _fadeCoroutine);
+			.Yield(() => EnableMask(false)).RunOn(Instance, ref _fadeCoroutine);
 			return _fadeCoroutine;
 		}
 
