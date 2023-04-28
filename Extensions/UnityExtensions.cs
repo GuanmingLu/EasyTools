@@ -28,14 +28,34 @@ namespace EasyTools {
 			var c = self.color; c.a = Clamp01(a); self.color = c;
 		}
 
-		public static void SetZDeg(this Transform self, float z) {
-			var v = self.eulerAngles; v.z = z; self.eulerAngles = v;
-		}
-		public static void SetZDeg(this Quaternion self, float z) {
-			var v = self.eulerAngles; v.z = z; self.eulerAngles = v;
+		private static Vector3 SetValue(this Vector3 self, float? x = null, float? y = null, float? z = null) {
+			if (x is float xVal) self.x = xVal;
+			if (y is float yVal) self.y = yVal;
+			if (z is float zVal) self.z = zVal;
+			return self;
 		}
 
-		public static void SetScale(this Transform self, float scale) {
+		public static void SetPos(this Transform self, float? x = null, float? y = null, float? z = null) {
+			self.position = self.position.SetValue(x, y, z);
+		}
+
+		public static void SetLocalPos(this Transform self, float? x = null, float? y = null, float? z = null) {
+			self.localPosition = self.localPosition.SetValue(x, y, z);
+		}
+
+		public static void SetRot(this Transform self, float? x = null, float? y = null, float? z = null) {
+			self.eulerAngles = self.eulerAngles.SetValue(x, y, z);
+		}
+
+		public static void SetLocalRot(this Transform self, float? x = null, float? y = null, float? z = null) {
+			self.localEulerAngles = self.localEulerAngles.SetValue(x, y, z);
+		}
+
+		public static void SetScale(this Transform self, float? x = null, float? y = null, float? z = null) {
+			self.localScale = self.localScale.SetValue(x, y, z);
+		}
+
+		public static void SetAllScale(this Transform self, float scale) {
 			self.localScale = new Vector3(scale, scale, scale);
 		}
 
@@ -45,6 +65,7 @@ namespace EasyTools {
 		public static void DestroySelf(this UnityEngine.Object self) => UnityEngine.Object.Destroy(self);
 
 		public static RectTransform ToRect(this Transform self) => self as RectTransform;
+		public static RectTransform GetRect(this GameObject self) => self.transform as RectTransform;
 
 		public static void SetVX(this Rigidbody2D self, float x) {
 			var v = self.velocity; v.x = x; self.velocity = v;

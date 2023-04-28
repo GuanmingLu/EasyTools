@@ -45,7 +45,7 @@ namespace EasyTools {
 		public static Color32 Parse(string hex) {
 			if (string.IsNullOrWhiteSpace(hex) || hex[0] != '#') throw new FormatException($"{hex} 不是有效的颜色：字符串必须以 # 开头");
 
-			hex = (hex + "FF").Substring(1, 8);
+			hex = (hex + "FF")[1..9];   // 补齐 Alpha 值
 
 			return Parse(Convert.ToUInt32(hex, 16));
 		}
