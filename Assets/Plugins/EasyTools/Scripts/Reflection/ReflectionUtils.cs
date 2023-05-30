@@ -125,6 +125,10 @@ namespace EasyTools.Reflection {
 			return false;
 		}
 
+		public IEnumerable<MethodInfo> GetCallable(params object[] args) => GetMembers().SelectWhere(m => {
+			return m is MethodInfo method && method.IsCallable(args) ? (true, method) : (false, default);
+		});
+
 		#endregion
 
 		#region 读取
@@ -198,6 +202,23 @@ namespace EasyTools.Reflection {
 		public static Reflector GetReflector(string fullTypeName, string simpleAssemblyName) => GetReflector(fullTypeName, Assembly.Load(simpleAssemblyName));
 
 		public static void ClearCache() => Uncapsulator.ClearStaticCache();
+
+		public static bool IsCallable(this MethodInfo method, params object[] args) {
+			var parameters = method.GetParameters();
+			if (args.Length > parameters.Length) return false;
+
+			foreach (var (p, index) in parameters.WithIndex()) {
+				if (index < args.Length) {
+					if (!p.ParameterType.IsAssignableFrom(args[index].GetType()))
+						return false;
+				}
+				else {
+					if (!p.IsOptional) return false;
+				}
+			}
+
+			return true;
+		}
 	}
 
 }
