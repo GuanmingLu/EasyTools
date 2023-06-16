@@ -1,10 +1,9 @@
-using EasyTools.InternalComponent;
 using UnityEngine;
 
 namespace EasyTools {
 
 	public static class GameAudio {
-		private static GameAudioComponent Instance => GameAudioComponent.Instance;
+		private static InternalComponent.GameAudioComponent Instance => EasyToolsPrefab.GameAudioComponent;
 
 		/// <summary>
 		/// 播放音效（可同时播放多个，不会覆盖）

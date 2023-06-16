@@ -5,78 +5,72 @@ using UnityEngine;
 
 namespace EasyTools {
 
-	public class CoroutineHandler : CustomYieldInstruction {
-		public static CoroutineHandler Start(MonoBehaviour target, IEnumerator coroutine) {
-			var c = new CoroutineHandler();
-			c._target = target;
-			c._coroutine = target.StartCoroutine(c.Run(coroutine));
-			return c;
-		}
+	/// <summary>
+	/// 对于协程状态的封装，可以监测协程是否结束，以及在协程结束时触发事件
+	/// </summary>
+	public class CoroutineState : CustomYieldInstruction {
 
-		public static CoroutineHandler Start(MonoBehaviour target, YieldInstruction coroutine) {
-			var c = new CoroutineHandler();
-			c._target = target;
-			c._coroutine = target.StartCoroutine(c.Run(coroutine));
-			return c;
-		}
+		/// <summary>
+		/// 对于协程状态的封装，可以监测协程是否结束，以及在协程结束时触发事件
+		/// </summary>
+		public CoroutineState() { }
 
-		private Coroutine _coroutine;
-		private MonoBehaviour _target;
-		public bool IsDone { get; private set; }
-		public event Action OnFinished;
+		/// <summary>
+		/// 协程是否结束
+		/// </summary>
+		public bool IsDone { get; protected set; } = true;
 		public override bool keepWaiting => !IsDone;
 
-		private IEnumerator Run(IEnumerator i) {
-			yield return i;
-			IsDone = true;
-			OnFinished?.Invoke();
+		/// <summary>
+		/// 协程结束时触发的事件
+		/// </summary>
+		public event Action OnFinished;
+		protected void InvokeOnFinished() => OnFinished?.Invoke();
+	}
+
+	/// <summary>
+	/// 倒计时
+	/// </summary>
+	public class CountDown : CoroutineState {
+		private WaitForSeconds _wait;
+		private CountDown() { }
+
+		/// <summary>
+		/// 开始倒计时
+		/// </summary>
+		public static CountDown Start(float time) {
+			CountDown countDown = new CountDown() { _wait = new WaitForSeconds(time) };
+			countDown.Reset();
+			return countDown;
 		}
 
-		private IEnumerator Run(YieldInstruction y) {
-			yield return y;
-			IsDone = true;
-			OnFinished?.Invoke();
-		}
-
-		public void Stop() {
-			_target.StopCoroutine(_coroutine);
-			IsDone = true;
+		/// <summary>
+		/// 重新开始倒计时
+		/// </summary>
+		new public void Reset() {
+			IEnumerator C() {
+				IsDone = false;
+				yield return _wait;
+				IsDone = true;
+				InvokeOnFinished();
+			}
+			EasyToolsPrefab.Instance.StartCoroutine(C());
 		}
 	}
 
 	public static class CoroutineExtension {
-		public static CoroutineHandler Run(this YieldInstruction coroutine, MonoBehaviour self) => CoroutineHandler.Start(self, coroutine);
-		public static CoroutineHandler Run(this IEnumerator coroutine, MonoBehaviour self) => CoroutineHandler.Start(self, coroutine);
-		public static CoroutineHandler Run(this YieldInstruction coroutine) => CoroutineHandler.Start(EasyToolsPrefab.Instance, coroutine);
-		public static CoroutineHandler Run(this IEnumerator coroutine) => CoroutineHandler.Start(EasyToolsPrefab.Instance, coroutine);
+		public static Coroutine RunOn(this IEnumerator func, MonoBehaviour runner) => runner.StartCoroutine(func);
+		public static void Run(this IEnumerator func) => EasyToolsPrefab.Instance.StartCoroutine(func);
 
-		public static IEnumerator Then(this IEnumerator a, Action action) { yield return a; action(); }
-		public static IEnumerator Then(this IEnumerator a, IEnumerator next) { yield return a; yield return next; }
-		public static IEnumerator Then(this IEnumerator a, YieldInstruction next) { yield return a; yield return next; }
-		public static IEnumerator Then(this YieldInstruction a, Action action) { yield return a; action(); }
-		public static IEnumerator Then(this YieldInstruction a, IEnumerator next) { yield return a; yield return next; }
-		public static IEnumerator Then(this YieldInstruction a, YieldInstruction next) { yield return a; yield return next; }
-
-		public static CoroutineHandler Loop(this MonoBehaviour self, float interval, Action func, float delay = 0f) {
-			IEnumerator C() {
-				yield return Wait.Seconds(delay);
-				while (true) {
-					func?.Invoke();
-					yield return Wait.Seconds(interval);
-				}
-			}
-			return C().Run(self);
+		public static void RunOn(this IEnumerator func, MonoBehaviour runner, ref Coroutine coroutine) {
+			if (coroutine != null) runner.StopCoroutine(coroutine);
+			coroutine = runner.StartCoroutine(func);
 		}
-		public static CoroutineHandler Loop(this MonoBehaviour self, Action func, float delay = 0f) {
-			IEnumerator C() {
-				yield return Wait.Seconds(delay);
-				while (true) {
-					yield return null;
-					func?.Invoke();
-				}
+		public static void StopCoroutine(this MonoBehaviour runner, ref Coroutine coroutine) {
+			if (coroutine != null) {
+				runner.StopCoroutine(coroutine);
+				coroutine = null;
 			}
-			return C().Run(self);
 		}
-
 	}
 }

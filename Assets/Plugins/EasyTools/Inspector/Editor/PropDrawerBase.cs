@@ -6,8 +6,8 @@ namespace EasyTools.Editor {
 	public abstract class PropDrawerBase<T> : PropertyDrawer {
 		protected SerializedProperty property;
 		protected GUIContent label;
-		public MonoBehaviour Mono => (MonoBehaviour)property.serializedObject.targetObject;
-		protected T PropValue => (T)fieldInfo.GetValue(Mono);
+		public Object Target => property.serializedObject.targetObject;
+		protected T PropValue => (T)fieldInfo.GetValue(Target);
 
 		public sealed override float GetPropertyHeight(SerializedProperty property, GUIContent label) {
 			this.property = property;

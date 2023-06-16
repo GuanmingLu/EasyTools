@@ -1,5 +1,7 @@
-﻿using System;
+﻿using System.Collections.Generic;
+using System;
 using static System.Math;
+using System.Linq;
 
 namespace EasyTools {
 
@@ -12,6 +14,8 @@ namespace EasyTools {
 
 		public static int RandInt(int minInclusive, int maxExclusive) => rand.Next(minInclusive, maxExclusive);
 		public static double RandDouble(float minInclusive, float maxInclusive) => rand.NextDouble() * (maxInclusive - minInclusive) + minInclusive;
-		public static float RandFloat(float minInclusive, float maxInclusive) => (float)RandDouble(minInclusive, maxInclusive);
+		public static float RandFloat(float minInclusive, float maxInclusive) => (float)rand.NextDouble() * (maxInclusive - minInclusive) + minInclusive;
+
+		public static float Sqr(this float value) => value * value;
 	}
 }

@@ -17,7 +17,7 @@ namespace EasyTools.Editor {
 				Utils.Warning(position, $"{property.name}: 按钮方法名为空");
 			}
 			else if (GUI.Button(position, PropValue.text)) {
-				if (!Mono.Reflect().TryCall(PropValue.methodName)) {
+				if (!Target.Reflect().TryCall(PropValue.methodName)) {
 					Debug.LogError($"按钮方法 {PropValue.methodName} 调用失败");
 				}
 			}
@@ -31,7 +31,7 @@ namespace EasyTools.Editor {
 				Utils.Warning(position, "未设置只读值名称");
 			}
 			else {
-				if (Mono.Reflect().GetGettableValues<object>(PropValue.ValueName).TryGetFirst(out var member)) {
+				if (Target.Reflect().GetGettableValues<object>(PropValue.ValueName).TryGetFirst(out var member)) {
 					using (new EditorGUI.DisabledScope(true))
 						Utils.ValueField(position, PropValue.DisplayedName, member.Get(), member.ValueType);
 				}
@@ -81,12 +81,12 @@ namespace EasyTools.Editor {
 		private AnimatorControllerParameter[] GetParams() {   // 筛选出符合条件的动画参数
 			Animator animator = null;
 			if (string.IsNullOrEmpty(PropValue.AnimatorName)) {
-				if (!Mono.TryGetComponent<Animator>(out animator)) {
+				if (!((Component)Target).TryGetComponent<Animator>(out animator)) {
 					throw new Exception($"未设置 Animator Name，且在此 GameObject 上未找到 Animator");
 				}
 			}
 			else {
-				if (Mono.Reflect().GetGettableValues<Animator>(PropValue.AnimatorName).TryGetFirst(out var member)) {
+				if (Target.Reflect().GetGettableValues<Animator>(PropValue.AnimatorName).TryGetFirst(out var member)) {
 					animator = member.Get();
 					if (animator == null) {
 						throw new Exception($"{PropValue.AnimatorName} 的值为 null");

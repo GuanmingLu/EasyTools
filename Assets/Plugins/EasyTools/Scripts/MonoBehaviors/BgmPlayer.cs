@@ -14,20 +14,24 @@ namespace EasyTools {
 		[SerializeField] private FadeType _bgmFadeType = FadeType.Start;
 
 		private void Awake() {
-			if (_bgmFadeType == FadeType.Awake) Fade().Run(this);
+			if (_bgmFadeType == FadeType.Awake) Fade();
 		}
 
 		private void OnEnable() {
-			if (_bgmFadeType == FadeType.OnEnable) Fade().Run(this);
+			if (_bgmFadeType == FadeType.OnEnable) Fade();
 		}
 
 		private void Start() {
-			if (_bgmFadeType == FadeType.Start) Fade().Run(this);
+			if (_bgmFadeType == FadeType.Start) Fade();
 		}
 
-		IEnumerator Fade() {
-			yield return new WaitForSeconds(_delay);
-			GameAudio.FadeBGM(bgm: _bgm, volume: _volume);
+		Coroutine _fadeCoroutine;
+		void Fade() {
+			IEnumerator C() {
+				yield return new WaitForSeconds(_delay);
+				GameAudio.FadeBGM(bgm: _bgm, volume: _volume);
+			}
+			C().RunOn(this, ref _fadeCoroutine);
 		}
 	}
 }
