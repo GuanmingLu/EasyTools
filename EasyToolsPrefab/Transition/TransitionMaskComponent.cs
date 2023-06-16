@@ -10,6 +10,7 @@ namespace EasyTools.InternalComponent {
 
 		private void Awake() {
 			_mask.enabled = false;
+			_mask.color = Color.clear;
 			_text.text = "";
 		}
 	}

@@ -59,18 +59,35 @@ namespace EasyTools {
 	}
 
 	public static class CoroutineExtension {
-		public static Coroutine RunOn(this IEnumerator func, MonoBehaviour runner) => runner.StartCoroutine(func);
-		public static void Run(this IEnumerator func) => EasyToolsPrefab.Instance.StartCoroutine(func);
+		public static IEnumerator Expand(this IEnumerator func) {
+			while (func.MoveNext()) {
+				if (func.Current is IEnumerator sub) {
+					var subFunc = sub.Expand();
+					while (subFunc.MoveNext()) yield return subFunc.Current;
+				}
+				else {
+					yield return func.Current;
+				}
+			}
+		}
 
-		public static void RunOn(this IEnumerator func, MonoBehaviour runner, ref Coroutine coroutine) {
-			if (coroutine != null) runner.StopCoroutine(coroutine);
-			coroutine = runner.StartCoroutine(func);
+		public static Coroutine RunOn(this IEnumerator func, MonoBehaviour runner) => runner.StartCoroutine(func.Expand());
+		public static void Run(this IEnumerator func) => EasyToolsPrefab.Instance.StartCoroutine(func.Expand());
+
+		public static void RunOn(this IEnumerator func, MonoBehaviour runner, ref Coroutine coroutine, bool stopOld = true) {
+			if (stopOld && coroutine != null) runner.StopCoroutine(coroutine);
+			coroutine = runner.StartCoroutine(func.Expand());
 		}
 		public static void StopCoroutine(this MonoBehaviour runner, ref Coroutine coroutine) {
 			if (coroutine != null) {
 				runner.StopCoroutine(coroutine);
 				coroutine = null;
 			}
+		}
+
+		public static IEnumerator Then(this IEnumerator func, Action action) {
+			yield return func;
+			action();
 		}
 	}
 }

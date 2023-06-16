@@ -18,8 +18,7 @@ namespace EasyTools.InternalComponent {
 		internal void FadeBGM(AudioClip targetBGM, float fadeTime, float volume) {
 			IEnumerator C() {
 				// 淡出
-				var v = _bgmSource.volume;
-				yield return EasyTween.Linear(fadeTime, d => _bgmSource.volume = Mathf.Lerp(v, 0, d));
+				yield return EasyTween.Linear(fadeTime, t => _bgmSource.volume = t, _bgmSource.volume, 0);
 
 				// 切换
 				_bgmSource.Stop();
@@ -28,13 +27,20 @@ namespace EasyTools.InternalComponent {
 				// 淡入
 				if (targetBGM != null) {
 					_bgmSource.Play();
-					yield return EasyTween.Linear(fadeTime, d => _bgmSource.volume = Mathf.Lerp(0, volume, d));
+					yield return EasyTween.Linear(fadeTime, t => _bgmSource.volume = t, 0, volume);
 				}
 				else {
 					_bgmSource.volume = volume;
 				}
 			}
 			if (targetBGM != _bgmSource.clip) C().RunOn(this, ref _fadeCoroutine);
+		}
+
+		internal void FadeVolume(float targetVolume, float fadeTime) {
+			IEnumerator C() {
+				yield return EasyTween.Linear(fadeTime, t => _bgmSource.volume = t, _bgmSource.volume, targetVolume);
+			}
+			C().RunOn(this, ref _fadeCoroutine);
 		}
 	}
 }

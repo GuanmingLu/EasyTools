@@ -81,9 +81,20 @@ namespace EasyTools {
 		public static T ChooseLoop<T>(this IEnumerable<T> source, int index) => source.ElementAt(index % source.Count());
 
 		/// <summary> 相当于将 source[index] 中的 index 自动限制在 [0, source.Count() - 1] </summary>
-		public static T ChooseClamp<T>(this IEnumerable<T> source, int index) => source.ElementAt(Clamp(index, 0, source.Count() - 1));
+		public static T ChooseClamp<T>(this IEnumerable<T> source, int index) => source.ElementAt(index.Clamp(0, source.Count() - 1));
 
 		/// <summary> 随机选取列表中的一个元素 </summary>
 		public static T ChooseRandom<T>(this IEnumerable<T> source) => source.ElementAt(RandInt(0, source.Count()));
+
+
+		public static void Shuffle<T>(this List<T> source) {
+			for (int i = 0; i < source.Count; i++) {
+				int j = RandInt(i, source.Count);
+				(source[i], source[j]) = (source[j], source[i]);
+			}
+		}
+		public static void FillCapacity<T>(this List<T> source, T value) {
+			while (source.Count < source.Capacity) source.Add(value);
+		}
 	}
 }

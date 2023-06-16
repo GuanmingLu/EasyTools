@@ -33,7 +33,7 @@ namespace EasyTools {
 
 		public void Refresh() {
 			if (target != null && !string.IsNullOrWhiteSpace(propertyName) && EasyLocalization.TryGet<string>(fileName, key, out var s)) {
-				target.Reflect().GetSettableValues<string>(propertyName).First().Set(s);
+				target.Reflect().TrySet(propertyName, s);
 			}
 		}
 	}

@@ -6,9 +6,11 @@ using System.Linq;
 namespace EasyTools {
 
 	public static class EasyMath {
-		public static int Clamp(int value, int min, int max) => Max(Min(value, max), min);
-		public static float Clamp(float value, float min, float max) => Max(Min(value, max), min);
-		public static double Clamp(double value, double min, double max) => Max(Min(value, max), min);
+		public static int ClampMin(this int value, int min) => Max(value, min);
+		public static int ClampMax(this int value, int max) => Min(value, max);
+		public static int Clamp(this int value, int min, int max) => Max(Min(value, max), min);
+		public static float Clamp(this float value, float min, float max) => Max(Min(value, max), min);
+		public static double Clamp(this double value, double min, double max) => Max(Min(value, max), min);
 
 		private static Random rand = new Random();
 
