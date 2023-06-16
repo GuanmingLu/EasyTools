@@ -5,12 +5,9 @@ using System.Linq;
 namespace EasyTools {
 
 	public static class DictExtensions {
-		public static IEnumerable<(TKey, TValue)> Destruct<TKey, TValue>(this Dictionary<TKey, TValue> source)
-			=> source.Select(item => (item.Key, item.Value));
-
 		public static int RemoveWhere<TKey, TValue>(this Dictionary<TKey, TValue> source, Func<TKey, TValue, bool> predicate) {
 			var keysToRemove = new HashSet<TKey>();
-			foreach (var (key, value) in source.Destruct()) {
+			foreach (var (key, value) in source) {
 				if (predicate(key, value)) keysToRemove.Add(key);
 			}
 			foreach (var key in keysToRemove) {

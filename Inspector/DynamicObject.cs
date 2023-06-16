@@ -39,7 +39,7 @@ namespace EasyTools {
 			_types.Clear();
 			_UObjValues.Clear();
 			_othersValuesJson.Clear();
-			foreach (var (key, (type, value)) in this.Destruct()) {
+			foreach (var (key, (type, value)) in this) {
 				_keys.Add(key);
 				_types.Add(type.AssemblyQualifiedName);
 				if (typeof(UObj).IsAssignableFrom(type)) {

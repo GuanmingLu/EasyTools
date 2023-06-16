@@ -32,6 +32,7 @@ namespace EasyTools {
 			_playOnAwake = Source.playOnAwake;
 		}
 
+		Coroutine _timerCoroutine;
 
 		public void Play() {
 			if (IsStarted) {
@@ -62,13 +63,13 @@ namespace EasyTools {
 					loopPointReached?.Invoke();
 				}
 			}
-			_timer = C().Run(this);
+			C().RunOn(this, ref _timerCoroutine);
 		}
 
 		public void Pause() {
 			if (IsStarted && !IsPaused) {
 				IsPaused = true;
-				_timer?.Stop();
+				this.StopCoroutine(ref _timerCoroutine);
 				Source.Pause();
 			}
 		}
@@ -77,12 +78,10 @@ namespace EasyTools {
 			if (IsStarted) {
 				IsStarted = false;
 				IsPaused = false;
-				_timer?.Stop();
+				this.StopCoroutine(ref _timerCoroutine);
 				Source.Stop();
 				Source.time = 0;
 			}
 		}
-
-		CoroutineHandler _timer;
 	}
 }

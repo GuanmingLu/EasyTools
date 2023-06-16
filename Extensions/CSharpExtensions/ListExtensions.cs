@@ -9,6 +9,21 @@ namespace EasyTools {
 		public static IEnumerable<(T item, int index)> GetIndex<T>(this IEnumerable<T> source, int startIndex = 0)
 			=> source.Zip(Enumerable.Range(startIndex, source.Count()), (item, index) => (item, index));
 
+		public static int IndexOf<T>(this IEnumerable<T> source, Func<T, bool> predicate) {
+			foreach (var (item, index) in source.GetIndex()) {
+				if (predicate(item)) return index;
+			}
+			return -1;
+		}
+
+		public static IEnumerable<(int i, int j)> GetIndex<T>(this T[,] source) {
+			for (int i = 0; i < source.GetLength(0); i++) {
+				for (int j = 0; j < source.GetLength(1); j++) {
+					yield return (i, j);
+				}
+			}
+		}
+
 		#region First & Last
 
 		public static bool TryGetFirst<T>(this IEnumerable<T> source, out T first) {
@@ -57,41 +72,10 @@ namespace EasyTools {
 
 		#endregion
 
-		#region ForEach
-
 		/// <param name="action"> 对集合中各元素的操作 </param>
 		public static void ForEach<T>(this IEnumerable<T> source, Action<T> action) {
 			foreach (var item in source) action(item);
 		}
-
-		/// <param name="actionWithIndex"> 对集合中各元素的操作，参数为 (item, index) </param>
-		/// <param name="startIndex"> index 的起始值 </param>
-		public static void ForEach<T>(this IEnumerable<T> source, Action<T, int> actionWithIndex, int startIndex = 0) {
-			int index = startIndex;
-			foreach (var item in source) actionWithIndex(item, index++);
-		}
-
-		/// <param name="action"> 对集合中各元素的操作，返回 true 时跳出循环 </param>
-		/// <returns> 跳出循环时返回 true，完全遍历时返回 false </returns>
-		public static bool ForEach<T>(this IEnumerable<T> source, Func<T, bool> action) {
-			foreach (var item in source) {
-				if (action(item)) return true;
-			}
-			return false;
-		}
-
-		/// <param name="actionWithIndex"> 对集合中各元素的操作，参数为 (item, index)，返回 true 时跳出循环 </param>
-		/// <param name="startIndex"> index 的起始值 </param>
-		/// <returns> 跳出循环时返回 true，完全遍历时返回 false </returns>
-		public static bool ForEach<T>(this IEnumerable<T> source, Func<T, int, bool> actionWithIndex, int startIndex = 0) {
-			int index = startIndex;
-			foreach (var item in source) {
-				if (actionWithIndex(item, index++)) return true;
-			}
-			return false;
-		}
-
-		#endregion
 
 		/// <summary> 相当于 source[index % source.Count()] </summary>
 		public static T ChooseLoop<T>(this IEnumerable<T> source, int index) => source.ElementAt(index % source.Count());

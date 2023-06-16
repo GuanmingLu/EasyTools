@@ -60,5 +60,10 @@ namespace EasyTools {
 		public static Vector2 Pos2(this Transform self) => self.position;
 		public static Vector3 To3(this Vector2 self) => self;
 		public static Vector2 To2(this Vector3 self) => self;
+
+		public static void Deconstruct(this Vector2 self, out float x, out float y) { x = self.x; y = self.y; }
+		public static void Deconstruct(this Vector2Int self, out int x, out int y) { x = self.x; y = self.y; }
+		public static void Deconstruct(this Vector3 self, out float x, out float y, out float z) { x = self.x; y = self.y; z = self.z; }
+		public static void Deconstruct(this Vector3Int self, out int x, out int y, out int z) { x = self.x; y = self.y; z = self.z; }
 	}
 }

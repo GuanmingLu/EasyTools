@@ -21,12 +21,13 @@ namespace EasyTools.InternalComponent {
 		public void Show(string text, float showTime, float duration, float fadeOutTime) {
 			self.text = text;
 			self.SetA(0);
-			new EasyTask() {
-				EasyTween.Linear(showTime, self.SetA),
-				Wait.Seconds(duration),
-				EasyTween.Linear(fadeOutTime, d => self.SetA(1 - d)),
-				() => Destroy(gameObject)
-			}.Run(this);
+			IEnumerator C() {
+				yield return EasyTween.Linear(showTime, self.SetA);
+				yield return Wait.Seconds(duration);
+				yield return EasyTween.Linear(fadeOutTime, d => self.SetA(1 - d));
+				Destroy(gameObject);
+			}
+			C().RunOn(this);
 		}
 	}
 }

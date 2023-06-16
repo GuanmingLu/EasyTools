@@ -1,6 +1,7 @@
 ﻿using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using EasyTools.InternalComponent;
 
 namespace EasyTools {
 
@@ -20,7 +21,35 @@ namespace EasyTools {
 			}
 		}
 
-		[SerializeField] public object obj = 15;
+		private static TransitionMaskComponent _transitionMaskComponent;
+		internal static TransitionMaskComponent TransitionMaskComponent {
+			get {
+				if (_transitionMaskComponent == null) {
+					_transitionMaskComponent = Instance.GetComponentInChildren<TransitionMaskComponent>();
+				}
+				return _transitionMaskComponent;
+			}
+		}
+
+		private static ScrollMessageComponent _scrollMessageComponent;
+		internal static ScrollMessageComponent ScrollMessageComponent {
+			get {
+				if (_scrollMessageComponent == null) {
+					_scrollMessageComponent = Instance.GetComponentInChildren<ScrollMessageComponent>();
+				}
+				return _scrollMessageComponent;
+			}
+		}
+
+		private static GameAudioComponent _gameAudioComponent;
+		internal static GameAudioComponent GameAudioComponent {
+			get {
+				if (_gameAudioComponent == null) {
+					_gameAudioComponent = Instance.GetComponentInChildren<GameAudioComponent>();
+				}
+				return _gameAudioComponent;
+			}
+		}
 
 		[RuntimeInitializeOnLoadMethod(RuntimeInitializeLoadType.BeforeSceneLoad)]
 		private static void Startup() => Instance.enabled = true;

@@ -1,9 +1,23 @@
 using System;
 using System.Collections;
 using System.Collections.Generic;
+using System.Linq;
 using UnityEngine;
 
 namespace EasyTools {
+	public interface IPauseHandler {
+		public bool IsPaused { get; }
+	}
+	public class PauseToken : IPauseHandler {
+		public bool IsPaused { get; private set; }
+		public void Pause() => IsPaused = true;
+		public void Resume() => IsPaused = false;
+	}
+	public class PauseTokens : List<IPauseHandler>, IPauseHandler {
+		public bool IsPaused => this.Any(t => t.IsPaused);
+	}
+
+
 	public static class Wait {
 		public static WaitForEndOfFrame EndOffFrame = new WaitForEndOfFrame();
 
@@ -22,8 +36,18 @@ namespace EasyTools {
 				yield return null;
 			}
 		}
+		public static IEnumerator Seconds(float seconds, IPauseHandler pauseHandler) {
+			float time = 0;
+			while (time < seconds) {
+				yield return null;
+				if (!pauseHandler.IsPaused) time += Time.deltaTime;
+			}
+		}
 
-		public static WaitForSeconds NewSeconds(float seconds) => new WaitForSeconds(seconds);
+		public static IEnumerator NextFrame(IPauseHandler pauseHandler) {
+			yield return null;
+			while (pauseHandler.IsPaused) yield return null;
+		}
 
 		public static IEnumerator Frames(int count) {
 			for (int i = 0; i < count; i++) {
