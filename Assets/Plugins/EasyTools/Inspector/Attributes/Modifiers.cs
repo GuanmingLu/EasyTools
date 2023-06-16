@@ -5,6 +5,7 @@ using System.Collections.Generic;
 using UnityEditor;
 using UnityEngine;
 using EasyTools.Reflection;
+using System.Linq;
 
 namespace EasyTools.Inspector {
 
@@ -23,14 +24,8 @@ namespace EasyTools.Inspector {
 		private string _valueName;
 		protected AttributeWithValue(string valueName) => _valueName = valueName;
 #if UNITY_EDITOR
-		protected bool TryGetValue<TValue>(SerializedProperty property, out TValue result) {
-			if (property.serializedObject.targetObject.Reflect().GetGettableValues<TValue>(_valueName).TryGetFirst(out var member)) {
-				result = member.Get();
-				return true;
-			}
-			result = default;
-			return false;
-		}
+		protected bool TryGetValue<TValue>(SerializedProperty property, out TValue result)
+			=> property.serializedObject.targetObject.Reflect().TryGet(_valueName, out result);
 #endif
 	}
 

@@ -8,7 +8,7 @@ using UnityEngine;
 using Newtonsoft.Json;
 using System.Reflection;
 
-namespace EasyTools {
+namespace EasyTools.Editor {
 	public class CreateScriptableObjectWindow : EditorWindow {
 
 		private string _menuBtnName = "选择一个 ScriptableObject";

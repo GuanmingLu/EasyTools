@@ -24,7 +24,7 @@ namespace EasyTools.Editor {
 			}
 
 			var options = targetProperty.objectReferenceValue != null
-				? targetProperty.objectReferenceValue.Reflect().GetSettableValues<string>().Select(member => member.Member.Name).ToArray() : new string[0];
+				? targetProperty.objectReferenceValue.Reflect().GetSettableValues<string>().Select(v => v.DisplayName).ToArray() : new string[0];
 			var idx = Array.IndexOf(options, t.propertyName);
 
 			EditorGUI.BeginChangeCheck();

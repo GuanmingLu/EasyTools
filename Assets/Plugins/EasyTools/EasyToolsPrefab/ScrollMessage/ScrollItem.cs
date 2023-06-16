@@ -22,9 +22,9 @@ namespace EasyTools.InternalComponent {
 			self.text = text;
 			self.SetA(0);
 			IEnumerator C() {
-				yield return EasyTween.Linear(showTime, self.SetA);
+				yield return EasyTween.Linear(showTime, self.SetA, self.color.a, 1);
 				yield return Wait.Seconds(duration);
-				yield return EasyTween.Linear(fadeOutTime, d => self.SetA(1 - d));
+				yield return EasyTween.Linear(fadeOutTime, self.SetA, self.color.a, 0);
 				Destroy(gameObject);
 			}
 			C().RunOn(this);

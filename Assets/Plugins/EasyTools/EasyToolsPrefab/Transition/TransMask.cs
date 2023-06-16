@@ -1,5 +1,6 @@
 using System.Collections;
 using UnityEngine;
+using UnityEngine.SceneManagement;
 
 namespace EasyTools {
 	/// <summary>
@@ -15,8 +16,6 @@ namespace EasyTools {
 			c.a = Instance._mask.color.a;
 			Instance._mask.color = c;
 		}
-		private static void SetAlpha(float alpha) => Instance._mask.SetA(alpha);
-
 
 		public static string Text {
 			get => Instance._text.text;
@@ -41,12 +40,9 @@ namespace EasyTools {
 		/// 遮罩淡入
 		/// </summary>
 		public static Coroutine ShowMask(float fadeSeconds = 0.5f, uint color = 0x000000FF) {
-			IEnumerator C() {
-				SetColor(color);
-				EnableMask(true);
-				yield return EasyTween.Linear(fadeSeconds, SetAlpha);
-			}
-			C().RunOn(Instance, ref _fadeCoroutine);
+			SetColor(color);
+			EnableMask(true);
+			EasyTween.Linear(fadeSeconds, Instance._mask.SetA, Instance._mask.color.a, 1).RunOn(Instance, ref _fadeCoroutine);
 			return _fadeCoroutine;
 		}
 
@@ -54,12 +50,9 @@ namespace EasyTools {
 		/// 遮罩淡出
 		/// </summary>
 		public static Coroutine HideMask(float fadeSeconds = 0.5f, uint color = 0x000000FF) {
-			IEnumerator C() {
-				SetColor(color);
-				yield return EasyTween.Linear(fadeSeconds, d => SetAlpha(1 - d));
-				EnableMask(false);
-			}
-			C().RunOn(Instance, ref _fadeCoroutine);
+			SetColor(color);
+			EasyTween.Linear(fadeSeconds, Instance._mask.SetA, Instance._mask.color.a, 0)
+			.Then(() => EnableMask(false)).RunOn(Instance, ref _fadeCoroutine);
 			return _fadeCoroutine;
 		}
 
@@ -67,7 +60,7 @@ namespace EasyTools {
 			IEnumerator C() {
 				yield return ShowMask(fadeTime, color);
 				loading?.SetActive(true);
-				yield return UnityEngine.SceneManagement.SceneManager.LoadSceneAsync(sceneName);
+				yield return SceneManager.LoadSceneAsync(sceneName);
 				loading?.SetActive(false);
 				yield return HideMask(fadeTime, color);
 			}
@@ -79,12 +72,15 @@ namespace EasyTools {
 			IEnumerator C() {
 				yield return ShowMask(fadeTime, color);
 				loading?.SetActive(true);
-				yield return UnityEngine.SceneManagement.SceneManager.LoadSceneAsync(buildIndex);
+				yield return SceneManager.LoadSceneAsync(buildIndex);
 				loading?.SetActive(false);
 				yield return HideMask(fadeTime, color);
 			}
 			C().RunOn(Instance, ref _fadeCoroutine);
 			return _fadeCoroutine;
 		}
+
+		public static Coroutine ReloadScene(float fadeTime = 0.5f, uint color = 0x000000FF, GameObject loading = null)
+			=> LoadScene(SceneManager.GetActiveScene().buildIndex, fadeTime, color, loading);
 	}
 }

@@ -2,9 +2,9 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
-namespace EasyTools {
+namespace EasyTools.InternalComponent {
 
-	public class BgmPlayer : MonoBehaviour {
+	internal class BgmPlayer : MonoBehaviour {
 		[SerializeField] private AudioClip _bgm;
 		[SerializeField] private float _delay;
 		[SerializeField] private float _volume = 1f;
@@ -27,11 +27,8 @@ namespace EasyTools {
 
 		Coroutine _fadeCoroutine;
 		void Fade() {
-			IEnumerator C() {
-				yield return new WaitForSeconds(_delay);
-				GameAudio.FadeBGM(bgm: _bgm, volume: _volume);
-			}
-			C().RunOn(this, ref _fadeCoroutine);
+			Wait.Seconds(_delay).Then(() => GameAudio.FadeBGM(bgm: _bgm, volume: _volume))
+			.RunOn(this, ref _fadeCoroutine);
 		}
 	}
 }

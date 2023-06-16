@@ -13,12 +13,12 @@ namespace EasyTools.Editor {
 	[CustomPropertyDrawer(typeof(InspectorButton))]
 	public class InspectorButtonDrawer : PropDrawerBase<InspectorButton> {
 		protected override void OnGUI(Rect position) {
-			if (string.IsNullOrEmpty(PropValue.methodName)) {
-				Utils.Warning(position, $"{property.name}: 按钮方法名为空");
+			if (string.IsNullOrEmpty(propValue.methodName)) {
+				Utils.Warning(position, $"{label.text}: 按钮方法名为空");
 			}
-			else if (GUI.Button(position, PropValue.text)) {
-				if (!Target.Reflect().TryCall(PropValue.methodName)) {
-					Debug.LogError($"按钮方法 {PropValue.methodName} 调用失败");
+			else if (GUI.Button(position, propValue.text)) {
+				if (!owner.Reflect().TryCall(propValue.methodName, out _)) {
+					Debug.LogError($"按钮方法 {propValue.methodName} 调用失败");
 				}
 			}
 		}
@@ -27,16 +27,17 @@ namespace EasyTools.Editor {
 	[CustomPropertyDrawer(typeof(ReadOnlyValue))]
 	public class ReadOnlyValueDrawer : PropDrawerBase<ReadOnlyValue> {
 		protected override void OnGUI(Rect position) {
-			if (string.IsNullOrEmpty(PropValue.ValueName)) {
+			if (string.IsNullOrEmpty(propValue.ValueName)) {
 				Utils.Warning(position, "未设置只读值名称");
 			}
 			else {
-				if (Target.Reflect().GetGettableValues<object>(PropValue.ValueName).TryGetFirst(out var member)) {
+				if (owner.Reflect().GetGettableValues(propValue.ValueName).TryGetFirst(out var member)) {
+					var (type, value) = member.GetWithType();
 					using (new EditorGUI.DisabledScope(true))
-						Utils.ValueField(position, PropValue.DisplayedName, member.Get(), member.ValueType);
+						Utils.ValueField(position, propValue.DisplayedName, value, type);
 				}
 				else {
-					Utils.Warning(position, $"未找到值 {PropValue.ValueName}");
+					Utils.Warning(position, $"未找到值 {propValue.ValueName}");
 				}
 			}
 		}
@@ -53,25 +54,35 @@ namespace EasyTools.Editor {
 			}
 
 			var displayNames = allSceneNames.Select((scene, index) => new GUIContent($"{scene} ({index})")).ToArray();
-			var value = property.FindPropertyRelative("m_value");
-			EditorGUI.BeginProperty(position, label, property);
 
-			if (value.propertyType == SerializedPropertyType.String) {
-				var index = Mathf.Clamp(Array.IndexOf(allSceneNames, value.stringValue), 0, allSceneNames.Length - 1);
-				var newIndex = EditorGUI.Popup(position, label, index, displayNames);
-				if (newIndex != index) {
-					value.stringValue = allSceneNames[newIndex];
+			if (propValue is SceneName name) {
+				var selectedIndex = Array.IndexOf(allSceneNames, name.Value).ClampMin(0);
+				if (useProp) label = EditorGUI.BeginProperty(position, label, property);
+				EditorGUI.BeginChangeCheck();
+				var newIndex = EditorGUI.Popup(position, label, selectedIndex, displayNames);
+				if (EditorGUI.EndChangeCheck()) {
+					if (useProp) property.FindPropertyRelative("m_value").stringValue = allSceneNames[newIndex];
+					else {
+						Utils.ChangedObject(owner, $"Change SceneName prop value: {label.text} = {allSceneNames[newIndex]}");
+						name.Value = allSceneNames[newIndex];
+					}
 				}
+				if (useProp) EditorGUI.EndProperty();
 			}
-			else if (value.propertyType == SerializedPropertyType.Integer) {
-				var index = Mathf.Clamp(value.intValue, 0, allSceneNames.Length - 1);
-				var newIndex = EditorGUI.Popup(position, label, index, displayNames);
-				if (newIndex != index) {
-					value.intValue = newIndex;
+			else if (propValue is SceneIndex indexValue) {
+				var selectedIndex = indexValue.Value.ClampMin(0);
+				if (useProp) label = EditorGUI.BeginProperty(position, label, property);
+				EditorGUI.BeginChangeCheck();
+				var newIndex = EditorGUI.Popup(position, label, selectedIndex, displayNames);
+				if (EditorGUI.EndChangeCheck()) {
+					if (useProp) property.FindPropertyRelative("m_value").intValue = newIndex;
+					else {
+						Utils.ChangedObject(owner, $"Change SceneIndex prop value: {label.text} = {allSceneNames[newIndex]}");
+						indexValue.Value = newIndex;
+					}
 				}
+				if (useProp) EditorGUI.EndProperty();
 			}
-
-			EditorGUI.EndProperty();
 		}
 	}
 
@@ -80,29 +91,24 @@ namespace EasyTools.Editor {
 	public class AnimatorParamDrawer : PropDrawerBase<IAnimatorParam> {
 		private AnimatorControllerParameter[] GetParams() {   // 筛选出符合条件的动画参数
 			Animator animator = null;
-			if (string.IsNullOrEmpty(PropValue.AnimatorName)) {
-				if (!((Component)Target).TryGetComponent<Animator>(out animator)) {
+			if (string.IsNullOrEmpty(propValue.AnimatorName)) {
+				if (!((Component)owner).TryGetComponent<Animator>(out animator)) {
 					throw new Exception($"未设置 Animator Name，且在此 GameObject 上未找到 Animator");
 				}
 			}
 			else {
-				if (Target.Reflect().GetGettableValues<Animator>(PropValue.AnimatorName).TryGetFirst(out var member)) {
-					animator = member.Get();
-					if (animator == null) {
-						throw new Exception($"{PropValue.AnimatorName} 的值为 null");
-					}
-				}
-				else {
-					throw new Exception($"在脚本中未找到名为 {PropValue.AnimatorName} 的 Animator");
-				}
+				if (!owner.Reflect().TryGet(propValue.AnimatorName, out animator))
+					throw new Exception($"在脚本中未找到名为 {propValue.AnimatorName} 的 Animator");
+				if (animator == null)
+					throw new Exception($"{propValue.AnimatorName} 的值为 null");
 			}
 			var controller = (AnimatorController)animator.runtimeAnimatorController;
 			if (controller == null) {
-				throw new Exception($"{PropValue.AnimatorName} 没有设置 Controller");
+				throw new Exception($"{propValue.AnimatorName} 没有设置 Controller");
 			}
-			var animParams = controller.parameters.Where(parameter => PropValue.ParamType == null || parameter.type == PropValue.ParamType).ToArray();
+			var animParams = controller.parameters.Where(parameter => propValue.ParamType == null || parameter.type == propValue.ParamType).ToArray();
 			if (animParams.Length == 0) {
-				throw new Exception($"Animator 中没有 {PropValue.ParamType} 类型的动画参数");
+				throw new Exception($"Animator 中没有 {propValue.ParamType} 类型的动画参数");
 			}
 			return animParams;
 		}
@@ -118,33 +124,35 @@ namespace EasyTools.Editor {
 			}
 
 			var displayOptions = animParams.Select(param => param.name).ToArray();
-			var valueProp = property.FindPropertyRelative("m_value");
-			EditorGUI.BeginProperty(position, label, property);
 
-			if (valueProp.propertyType == SerializedPropertyType.Integer) {
-				int selectedIndex = Array.FindIndex(animParams, param => param.nameHash == valueProp.intValue);
-				selectedIndex = selectedIndex < 0 ? 0 : selectedIndex;
-
-				int newIndex = EditorGUI.Popup(position, label.text, selectedIndex, displayOptions);
-				int newValue = animParams[newIndex].nameHash;
-
-				if (valueProp.intValue != newValue) {
-					valueProp.intValue = newValue;
+			if (propValue is AnimatorParamHash paramHash) {
+				int selectedIndex = Array.FindIndex(animParams, p => p.nameHash == paramHash.Value).ClampMin(0);
+				if (useProp) label = EditorGUI.BeginProperty(position, label, property);
+				EditorGUI.BeginChangeCheck();
+				var newValue = animParams[EditorGUI.Popup(position, label.text, selectedIndex, displayOptions)].nameHash;
+				if (EditorGUI.EndChangeCheck()) {
+					if (useProp) property.FindPropertyRelative("m_value").intValue = newValue;
+					else {
+						Utils.ChangedObject(owner, $"Change AnimatorParamHash prop value: {label.text} = {newValue}");
+						paramHash.Value = newValue;
+					}
 				}
+				if (useProp) EditorGUI.EndProperty();
 			}
-			else if (valueProp.propertyType == SerializedPropertyType.String) {
-				int selectedIndex = Array.FindIndex(animParams, param => param.name == valueProp.stringValue);
-				selectedIndex = selectedIndex < 0 ? 0 : selectedIndex;
-
-				int newIndex = EditorGUI.Popup(position, label.text, selectedIndex, displayOptions);
-				string newValue = animParams[newIndex].name;
-
-				if (!valueProp.stringValue.Equals(newValue, System.StringComparison.Ordinal)) {
-					valueProp.stringValue = newValue;
+			else if (propValue is AnimatorParamName paramName) {
+				int selectedIndex = Array.FindIndex(animParams, p => p.name == paramName.Value).ClampMin(0);
+				if (useProp) label = EditorGUI.BeginProperty(position, label, property);
+				EditorGUI.BeginChangeCheck();
+				var newName = animParams[EditorGUI.Popup(position, label.text, selectedIndex, displayOptions)].name;
+				if (EditorGUI.EndChangeCheck()) {
+					if (useProp) property.FindPropertyRelative("m_value").stringValue = newName;
+					else {
+						Utils.ChangedObject(owner, $"Change AnimatorParamName prop value: {label.text} = {newName}");
+						paramName.Value = newName;
+					}
 				}
+				if (useProp) EditorGUI.EndProperty();
 			}
-
-			EditorGUI.EndProperty();
 		}
 	}
 }

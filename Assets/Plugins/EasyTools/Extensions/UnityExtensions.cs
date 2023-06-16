@@ -40,6 +40,12 @@ namespace EasyTools {
 		}
 
 		public static IEnumerable<Transform> GetChildren(this Transform self) => Enumerable.Range(0, self.childCount).Select(i => self.GetChild(i));
+		public static IEnumerable<Transform> ReversedChildren(this Transform self) {
+			for (var i = self.childCount - 1; i >= 0; i--) {
+				yield return self.GetChild(i);
+			}
+		}
+
 		public static void DestroyAllChildren(this Transform self) {
 			for (int i = self.childCount - 1; i >= 0; i--) {
 				if (Application.isPlaying) {
