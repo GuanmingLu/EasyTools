@@ -4,7 +4,7 @@ using UnityEngine;
 
 namespace EasyTools.InternalComponent {
 
-	public class InvokeEvent : MonoBehaviour {
+	internal class InvokeEvent : MonoBehaviour {
 		private enum InvokeTime {
 			Awake, OnEnable, Start
 		}

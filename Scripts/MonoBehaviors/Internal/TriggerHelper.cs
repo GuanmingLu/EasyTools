@@ -2,11 +2,12 @@
 using System.Collections.Generic;
 using UnityEngine;
 
-namespace EasyTools {
+namespace EasyTools.InternalComponent {
 	/// <summary>
-	/// 提供更可靠的 OnTriggerExit 检测，当正在碰撞的触发器被禁用时会发送 OnTriggerExit 消息
+	/// 挂载于要接收 OnTriggerExit 事件的 GameObject 上，提供更可靠的检测 <br/>
+	/// 当正在碰撞的触发器被禁用时会发送 OnTriggerExit 消息
 	/// </summary>
-	public class TriggerHelper : MonoBehaviour {
+	internal class TriggerHelper : MonoBehaviour {
 		private HashSet<Collider> _colliders = new HashSet<Collider>();
 		private HashSet<Collider> _exitedColliders = new HashSet<Collider>();
 		private void OnTriggerEnter(Collider other) {
