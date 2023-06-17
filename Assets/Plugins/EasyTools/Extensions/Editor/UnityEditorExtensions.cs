@@ -13,7 +13,7 @@ namespace EasyTools.Editor {
 			var childPos = children.Select(child => (child.position, child.rotation)).ToArray();
 			Utils.ChangedObjects(children.Append(transform).ToArray(), "Reset position keeping children");
 			transform.localPosition = Vector3.zero;
-			foreach (var (child, i) in children.GetIndex()) {
+			foreach (var (child, i) in children.WithIndex()) {
 				child.position = childPos[i].position;
 				child.rotation = childPos[i].rotation;
 			}
@@ -26,7 +26,7 @@ namespace EasyTools.Editor {
 			var childPos = children.Select(child => (child.position, child.rotation)).ToArray();
 			Utils.ChangedObjects(children.Append(transform).ToArray(), "Reset rotation keeping children");
 			transform.rotation = Quaternion.identity;
-			foreach (var (child, i) in children.GetIndex()) {
+			foreach (var (child, i) in children.WithIndex()) {
 				child.position = childPos[i].position;
 				child.rotation = childPos[i].rotation;
 			}

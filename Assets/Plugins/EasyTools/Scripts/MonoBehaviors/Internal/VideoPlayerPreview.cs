@@ -3,9 +3,10 @@ using UnityEngine;
 using UnityEngine.Video;
 using EasyTools.Inspector;
 
-namespace EasyTools {
+namespace EasyTools.InternalComponent {
 
-	public class VideoPlayerPreview : MonoBehaviour {
+	internal class VideoPlayerPreview : MonoBehaviour {
+#if UNITY_EDITOR
 		[SerializeField] private InspectorButton m_playBtn = new InspectorButton(nameof(Play), "播放");
 		private void Play() {
 			if (TryGetComponent<VideoPlayer>(out var c)) c.Play();
@@ -20,5 +21,6 @@ namespace EasyTools {
 		private void Stop() {
 			if (TryGetComponent<VideoPlayer>(out var c)) c.Stop();
 		}
+#endif
 	}
 }

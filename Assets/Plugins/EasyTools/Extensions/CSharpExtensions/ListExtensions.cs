@@ -6,11 +6,11 @@ using static EasyTools.EasyMath;
 namespace EasyTools {
 
 	public static class ListExtensions {
-		public static IEnumerable<(T item, int index)> GetIndex<T>(this IEnumerable<T> source, int startIndex = 0)
-			=> source.Zip(Enumerable.Range(startIndex, source.Count()), (item, index) => (item, index));
+		public static IEnumerable<(T item, int index)> WithIndex<T>(this IEnumerable<T> source, int startIndex = 0)
+			=> source.Select(item => (item, startIndex++));
 
 		public static int IndexOf<T>(this IEnumerable<T> source, Func<T, bool> predicate) {
-			foreach (var (item, index) in source.GetIndex()) {
+			foreach (var (item, index) in source.WithIndex()) {
 				if (predicate(item)) return index;
 			}
 			return -1;
@@ -95,6 +95,14 @@ namespace EasyTools {
 		}
 		public static void FillCapacity<T>(this List<T> source, T value) {
 			while (source.Count < source.Capacity) source.Add(value);
+		}
+	}
+
+
+	public class AutoInitDict<TKey, TValue> : Dictionary<TKey, TValue> {
+		public new TValue this[TKey key] {
+			set => base[key] = value;
+			get => this.GetValueOrDefault(key);
 		}
 	}
 }

@@ -6,7 +6,7 @@ using UnityEngine.Events;
 
 namespace EasyTools.InternalComponent {
 
-	public class VideoPlayerEventTrigger : MonoBehaviour {
+	internal class VideoPlayerEventTrigger : MonoBehaviour {
 		[SerializeField] private UnityEvent m_onVideoEnd;
 
 		private void Awake() {
