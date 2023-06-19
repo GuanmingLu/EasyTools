@@ -50,7 +50,7 @@ namespace EasyTools.Inspector {
 	[Serializable]
 	public class SceneName : ValueHolder<string> {
 		/// <param name="defaultSceneName">场景名称默认值</param>
-		public SceneName(string defaultSceneName) : base(defaultSceneName) { }
+		public SceneName(string defaultSceneName = "SampleScene") : base(defaultSceneName) { }
 		public static implicit operator SceneName(string self) => new SceneName(self);
 	}
 
@@ -63,7 +63,7 @@ namespace EasyTools.Inspector {
 	[Serializable]
 	public class SceneIndex : ValueHolder<int> {
 		/// <param name="sceneIndex">场景索引默认值</param>
-		public SceneIndex(int sceneIndex) : base(sceneIndex) { }
+		public SceneIndex(int sceneIndex = 0) : base(sceneIndex) { }
 		public static implicit operator SceneIndex(int self) => new SceneIndex(self);
 	}
 
@@ -108,5 +108,13 @@ namespace EasyTools.Inspector {
 			AnimatorName = nameof_animator;
 			ParamType = paramType;
 		}
+	}
+
+	/// <summary>
+	/// 在 Inspector 中选择一个资源文件，可获取其路径
+	/// </summary>
+	[Serializable]
+	public class StreamingAssetFile : ValueHolder<string> {
+		public StreamingAssetFile() : base(string.Empty) { }
 	}
 }

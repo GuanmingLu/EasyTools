@@ -155,4 +155,37 @@ namespace EasyTools.Editor {
 			}
 		}
 	}
+
+	[CustomPropertyDrawer(typeof(StreamingAssetFile))]
+	public class StreamingAssetFileDrawer : PropDrawerBase<StreamingAssetFile> {
+		protected override void OnGUI(Rect position) {
+			if (useProp) label = EditorGUI.BeginProperty(position, label, property);
+			var path = propValue.Value.Replace(Application.streamingAssetsPath, "Assets/StreamingAssets");
+			var obj = AssetDatabase.LoadAssetAtPath<DefaultAsset>(path);
+			EditorGUI.BeginChangeCheck();
+			obj = (DefaultAsset)EditorGUI.ObjectField(position, label, obj, typeof(DefaultAsset), false);
+			if (EditorGUI.EndChangeCheck()) {
+				if (obj == null) {
+					path = string.Empty;
+				}
+				else {
+					path = AssetDatabase.GetAssetPath(obj);
+					if (path.StartsWith("Assets/StreamingAssets")) {
+						path = path.Replace("Assets/StreamingAssets", Application.streamingAssetsPath);
+					}
+					else {
+						Debug.LogWarning($"选择的文件不在 StreamingAssets 目录下：{path}");
+						path = string.Empty;
+					}
+				}
+
+				if (useProp) property.FindPropertyRelative("m_value").stringValue = path;
+				else {
+					Utils.ChangedObject(owner, $"Change StreamingAssetFile prop value: {label.text}");
+					propValue.Value = path;
+				}
+			}
+			if (useProp) EditorGUI.EndProperty();
+		}
+	}
 }
