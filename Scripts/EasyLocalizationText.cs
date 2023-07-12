@@ -2,7 +2,7 @@ using System.Linq;
 using UnityEngine;
 using EasyTools.Reflection;
 
-namespace EasyTools {
+namespace EasyTools.InternalComponent {
 
 	[ExecuteAlways]
 	public class EasyLocalizationText : MonoBehaviour {
@@ -15,20 +15,20 @@ namespace EasyTools {
 			else if (TryGetComponent<TMPro.TMP_Text>(out var tmp)) target = tmp;
 
 			Refresh();
-			EasyLocalization.onLangSwitched -= Refresh;
-			EasyLocalization.onLangSwitched += Refresh;
+			EasyLocalization.OnLangSwitched -= Refresh;
+			EasyLocalization.OnLangSwitched += Refresh;
 		}
 
 		private void Start() {
 			if (Application.IsPlaying(gameObject)) {
 				Refresh();
-				EasyLocalization.onLangSwitched -= Refresh;
-				EasyLocalization.onLangSwitched += Refresh;
+				EasyLocalization.OnLangSwitched -= Refresh;
+				EasyLocalization.OnLangSwitched += Refresh;
 			}
 		}
 
 		private void OnDestroy() {
-			EasyLocalization.onLangSwitched -= Refresh;
+			EasyLocalization.OnLangSwitched -= Refresh;
 		}
 
 		public void Refresh() {
