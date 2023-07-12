@@ -27,7 +27,7 @@ namespace EasyTools.InternalComponent {
 
 		Coroutine _fadeCoroutine;
 		void Fade() {
-			Wait.Seconds(_delay).Yield(() => GameAudio.FadeBGM(bgm: _bgm, volume: _volume))
+			Wait.Seconds(_delay).Yield(() => GameAudio.FadeBGM(_bgm, volume: _volume))
 			.RunOn(this, ref _fadeCoroutine);
 		}
 	}

@@ -2,6 +2,8 @@ using System.IO;
 using System.Collections.Generic;
 using UnityEngine;
 using System;
+using Newtonsoft.Json;
+using Newtonsoft.Json.Linq;
 
 namespace EasyTools {
 
@@ -10,11 +12,28 @@ namespace EasyTools {
 	/// </summary>
 	public static class EasyLocalization {
 		public const string DefaultLang = "zh-CN";
-		public static string CurrentLang { get; set; } = DefaultLang;
+		public static string CurrentLang { get; private set; } = DefaultLang;
 
-		private static Dictionary<string, Dictionary<string, object>> _lib;
+		private static Dictionary<string, JToken> _lib;
+		private static bool Reload() {
+			var path = Application.streamingAssetsPath + $"/EasyTools/Localization/{CurrentLang}";
+			var pathLen = path.Length + 1;
+			if (!Directory.Exists(path)) return false;
+			if (_lib == null) _lib = new();
+			else _lib.Clear();
+			foreach (var fileName in Directory.EnumerateFiles(path, "*.json", SearchOption.AllDirectories)) {
+				_lib[fileName.Replace('\\', '/')[pathLen..^5]] = JToken.Parse(File.ReadAllText(fileName));
+			}
+			return true;
+		}
+		public static Dictionary<string, JToken> Lib {
+			get {
+				if (_lib == null) Reload();
+				return _lib;
+			}
+		}
 
-		public static event Action onLangSwitched;
+		public static event Action OnLangSwitched;
 
 		[RuntimeInitializeOnLoadMethod]
 		private static void OnStartup() {
@@ -26,58 +45,53 @@ namespace EasyTools {
 		/// 切换到指定的语言
 		/// </summary>
 		public static bool SwitchLang(string lang) {
-			if (SetLang(lang)) {
-				onLangSwitched?.Invoke();
-				return true;
-			}
-			else return false;
-		}
-		private static bool SetLang(string lang) {
-			var path = Application.streamingAssetsPath + $"/EasyTools/Localization/{lang}";
-			if (!Directory.Exists(path)) return false;
+			var oldLang = CurrentLang;
 			CurrentLang = lang;
-			var allFiles = Directory.GetFiles(path, "*.json");
-			if (_lib == null) _lib = new Dictionary<string, Dictionary<string, object>>();
-			else _lib.Clear();
-			foreach (var fileName in allFiles) {
-				_lib[Path.GetFileNameWithoutExtension(fileName)] = File.ReadAllText(fileName).FromJson<Dictionary<string, object>>();
-			}
-			return true;
-		}
-		public static bool ResetDefaultLang() => SetLang(DefaultLang);
-
-		/// <summary>
-		/// 从指定的翻译文件中获取指定键所对应的值（以指定的类型返回）
-		/// </summary>
-		public static T Get<T>(string fileName, string key) {
-			if (_lib == null && !ResetDefaultLang()) return default;
-			if (_lib.TryGetValue(fileName, out var dict) && dict.TryGetValue(key, out var value)) return value.JsonConvertTo<T>();
-			else return default;
-		}
-
-		/// <summary>
-		/// 从指定的翻译文件中获取指定键所对应的值，以指定的类型赋值给 value
-		/// </summary>
-		/// <returns> 是否获取到 </returns>
-		public static bool TryGet<T>(string fileName, string key, out T value) {
-			if (_lib == null && !ResetDefaultLang()) {
-				value = default;
-				return false;
-			}
-			if (_lib.TryGetValue(fileName, out var dict) && dict.TryGetValue(key, out var v)) {
-				value = v.JsonConvertTo<T>();
+			if (Reload()) {
+				OnLangSwitched?.Invoke();
 				return true;
 			}
 			else {
-				value = default;
+				CurrentLang = oldLang;
 				return false;
 			}
 		}
 
+		/// <summary>
+		/// 从指定的翻译文件中获取指定键或索引所对应的值
+		/// </summary>
+		public static T Get<T>(string fileName, object keyOrIndex) => Lib[fileName][keyOrIndex].ToObject<T>();
+
+		/// <summary>
+		/// 从指定的翻译文件中获取指定键或索引所对应的值
+		/// </summary>
+		/// <returns> 是否获取到 </returns>
+		public static bool TryGet<T>(string fileName, object keyOrIndex, out T value) {
+			value = default;
+			return Lib.GetValueOrDefault(fileName)?[keyOrIndex]?.TryToObj(out value) ?? false;
+		}
+
+		/// <summary>
+		/// 从指定的翻译文件中获取指定索引所对应的值
+		/// </summary>
+		/// <returns> 是否获取到 </returns>
+		public static bool TryGet<T>(string fileName, int index, out T value) {
+			value = default;
+			return Lib.GetValueOrDefault(fileName) is JArray arr && index < arr.Count && arr[index].TryToObj(out value);
+		}
+
+
+		public static IEnumerable<T> AsArray<T>(string fileName) {
+			var token = Lib.GetValueOrDefault(fileName);
+			if (token.Type == JTokenType.Array)
+				foreach (var item in token) {
+					if (item.TryToObj(out T value)) yield return value;
+				}
+		}
 
 #if UNITY_EDITOR
 		[UnityEditor.MenuItem("EasyTools/Localization/Reset Default Lang")]
-		public static void EditorResetDefaultLang() => ResetDefaultLang();
+		public static void Editor_ResetDefaultLang() => SwitchLang(DefaultLang);
 #endif
 	}
 }
