@@ -18,7 +18,7 @@ namespace EasyTools.Settings {
 				_instance = Resources.Load<T>(_fileName);
 #if UNITY_EDITOR
 				if (_instance == null) {
-					_instance = ScriptableObject.CreateInstance<T>();
+					_instance = CreateInstance<T>();
 					var dir = Path.GetDirectoryName(AssetDatabase.GetAssetPath(MonoScript.FromScriptableObject(_instance)));
 					if (!AssetDatabase.IsValidFolder($"{dir}/Resources")) AssetDatabase.CreateFolder(dir, "Resources");
 					AssetDatabase.CreateAsset(_instance, $"{dir}/Resources/{_fileName}.asset");
