@@ -1,6 +1,7 @@
 using System.Collections;
 using System;
 using UnityEngine;
+using UnityEngine.Events;
 
 namespace EasyTools {
 
@@ -11,7 +12,7 @@ namespace EasyTools {
 		public bool IsStarted { get; private set; } = false;
 		public bool IsPaused { get; private set; } = false;
 
-		public event Action loopPointReached;
+		public UnityEvent loopPointReached;
 
 		private void OnValidate() {
 			SetData();

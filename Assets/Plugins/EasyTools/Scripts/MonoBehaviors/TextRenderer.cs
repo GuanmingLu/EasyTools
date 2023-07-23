@@ -61,11 +61,13 @@ namespace EasyTools {
 			}
 		}
 
+#if UNITY_EDITOR
 		protected override void OnValidate() {
 			base.OnValidate();
 			Check();
 			Repaint();
 		}
+#endif
 
 		private void Update() {
 			if (Check()) Repaint();
