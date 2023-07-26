@@ -6,7 +6,7 @@ using UnityEditor.SceneManagement;
 namespace EasyTools.Editor {
 
 	public static class UnityEditorExtensions {
-		[MenuItem("CONTEXT/Transform/重置位置（不影响子物体）", false, 200)]
+		[MenuItem("CONTEXT/Transform/重置位置（不影响子物体）", false, 200000)]
 		public static void ResetPosKeepingChildren(MenuCommand command) {
 			var transform = (Transform)command.context;
 			var children = transform.GetChildren();
@@ -19,7 +19,7 @@ namespace EasyTools.Editor {
 			}
 		}
 
-		[MenuItem("CONTEXT/Transform/重置旋转（不影响子物体）", false, 200)]
+		[MenuItem("CONTEXT/Transform/重置旋转（不影响子物体）", false, 200001)]
 		public static void ResetRotKeepingChildren(MenuCommand command) {
 			var transform = (Transform)command.context;
 			var children = transform.GetChildren();
@@ -32,7 +32,7 @@ namespace EasyTools.Editor {
 			}
 		}
 
-		[MenuItem("EasyTools/运行首个场景", false, 0)]
+		[MenuItem("EasyTools/运行首个场景", false, int.MinValue)]
 		public static void StartFromScene0() {
 			if (!EditorApplication.isPlaying) {
 				EditorPrefs.SetBool("EasyTools.StartFromScene0", true);
@@ -48,7 +48,7 @@ namespace EasyTools.Editor {
 			}
 		}
 
-		[MenuItem("EasyTools/定位当前场景", false, 1)]
+		[MenuItem("EasyTools/定位当前场景", false, int.MinValue + 1)]
 		public static void LocateCurrentScene() => EditorGUIUtility.PingObject(AssetDatabase.LoadAssetAtPath<SceneAsset>(EditorSceneManager.GetActiveScene().path));
 	}
 }

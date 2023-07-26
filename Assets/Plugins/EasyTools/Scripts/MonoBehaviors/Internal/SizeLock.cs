@@ -6,7 +6,7 @@ namespace EasyTools.InternalComponent {
 
 	[ExecuteInEditMode]
 	[RequireComponent(typeof(RectTransform))]
-	public class SizeLock : MonoBehaviour {
+	internal class SizeLock : MonoBehaviour {
 #if UNITY_EDITOR
 		[SerializeField] private float m_width;
 		[SerializeField] private float m_ratio;
