@@ -12,7 +12,7 @@ namespace EasyTools.InternalComponent {
 		public string methodName = "";
 	}
 
-	public class CallStaticMethod : MonoBehaviour {
+	internal class CallStaticMethod : MonoBehaviour {
 		public const BindingFlags flags = BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Static | BindingFlags.InvokeMethod;
 
 		[SerializeField] private StaticCall[] m_callList;

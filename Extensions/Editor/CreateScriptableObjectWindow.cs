@@ -41,7 +41,7 @@ namespace EasyTools.Editor {
 
 			foreach (var t in allTypes) {
 				var asmName = t.Assembly.GetName().Name;
-				var root = asmName.StartsWith("Assembly-CSharp") ? asmName : $"Others";
+				var root = asmName.StartsWith("Assembly-CSharp") ? asmName : $"Others/{asmName}";
 				_menu.AddItem(new GUIContent($"{root}/{t.FullName.Replace('.', '/')}"), false, SelectType, t);
 			}
 		}

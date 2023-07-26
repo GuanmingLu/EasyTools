@@ -51,7 +51,7 @@ namespace EasyTools.Settings {
 
 
 #if UNITY_EDITOR
-		[UnityEditor.MenuItem("EasyTools/Settings")]
+		[UnityEditor.MenuItem("EasyTools/Settings", false, int.MaxValue)]
 		private static void Menu() {
 			UnityEditor.EditorGUIUtility.PingObject(Instance);
 		}
