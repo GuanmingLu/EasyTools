@@ -19,14 +19,14 @@ namespace EasyTools {
 		}
 
 		public static Coroutine RunOn(this IEnumerator func, MonoBehaviour runner) => runner.StartCoroutine(func.Expand());
-		public static Coroutine Run(this IEnumerator func) => func.RunOn(EasyToolsPrefab.Instance);
+		public static Coroutine Run(this IEnumerator func) => func.RunOn(EasyToolsGameObject.Instance);
 
 		public static void RunOn(this IEnumerator func, MonoBehaviour runner, ref Coroutine coroutine, bool stopOld = true) {
 			if (stopOld && coroutine != null) runner.StopCoroutine(coroutine);
 			coroutine = runner.StartCoroutine(func.Expand());
 		}
 		public static void Run(this IEnumerator func, ref Coroutine coroutine, bool stopOld = true)
-			=> func.RunOn(EasyToolsPrefab.Instance, ref coroutine, stopOld);
+			=> func.RunOn(EasyToolsGameObject.Instance, ref coroutine, stopOld);
 
 		public static void StopCoroutine(this MonoBehaviour runner, ref Coroutine coroutine) {
 			if (coroutine != null) {

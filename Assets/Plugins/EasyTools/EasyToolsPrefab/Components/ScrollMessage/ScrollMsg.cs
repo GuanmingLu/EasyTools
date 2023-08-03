@@ -1,4 +1,5 @@
 using UnityEngine;
+using EasyTools.InternalComponent;
 
 namespace EasyTools {
 	/// <summary>
@@ -6,7 +7,8 @@ namespace EasyTools {
 	/// </summary>
 	public static class ScrollMsg {
 		public static bool ShowLog { get; set; } = true;
-		private static InternalComponent.ScrollMessageComponent Instance => EasyToolsPrefab.ScrollMessageComponent;
+
+		private static EasyToolsGameObject Instance => EasyToolsGameObject.Instance;
 
 		/// <summary>
 		/// 添加一条滚动消息
