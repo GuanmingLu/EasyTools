@@ -8,15 +8,15 @@ namespace EasyTools.Settings {
 		[SerializeField] private EasyToolsSettings m_settings;
 		internal static EasyToolsSettings Settings => Instance.m_settings;
 
-		[SerializeField] private EasyToolsPrefab m_EasyToolsPrefab;
+		[SerializeField] private EasyToolsGameObject m_EasyToolsPrefab;
 
-		private static EasyToolsPrefab _easyToolsGameObject;
-		internal static EasyToolsPrefab EasyToolsGameObject {
+		private static EasyToolsGameObject _easyToolsGameObject;
+		internal static EasyToolsGameObject EasyToolsGameObject {
 			get {
 				if (_easyToolsGameObject == null) {
 					var obj = Instantiate(Instance.m_EasyToolsPrefab.gameObject);
 					DontDestroyOnLoad(obj);
-					_easyToolsGameObject = obj.GetComponent<EasyToolsPrefab>();
+					_easyToolsGameObject = obj.GetComponent<EasyToolsGameObject>();
 				}
 				return _easyToolsGameObject;
 			}
