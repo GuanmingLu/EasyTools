@@ -1,0 +1,25 @@
+{
+	"name": "com.guanming.esaytools",
+	"displayName": "EasyTools",
+	"version": "0.0.1",
+	"description": "",
+	"license": "MIT",
+	"unity": "2020.3",
+	"dependencies": {
+		"com.cysharp.unitask": "https://github.com/Cysharp/UniTask.git?path=src/UniTask/Assets/Plugins/UniTask"
+	},
+	"repository": {
+		"type": "git",
+		"url": "https://github.com/GuanmingLu/EasyTools.git?path=Assets/Plugins/EasyTools"
+	},
+	"keywords": [
+		"EasyTools",
+		"Inspector",
+		"Extension"
+	],
+	"author": {
+		"name": "Guanming",
+		"email": "Lu_Guanming@outlook.com",
+		"url": "https://github.com/GuanmingLu"
+	}
+}
