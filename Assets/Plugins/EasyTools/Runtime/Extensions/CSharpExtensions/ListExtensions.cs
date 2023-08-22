@@ -115,7 +115,7 @@ namespace EasyTools {
 		public static T ChooseRandom<T>(this IEnumerable<T> source) => source.ElementAt(RandInt(0, source.Count()));
 
 
-		public static void Shuffle<T>(this List<T> source) {
+		public static void Shuffle<T>(this IList<T> source) {
 			for (int i = 0; i < source.Count; i++) {
 				int j = RandInt(i, source.Count);
 				(source[i], source[j]) = (source[j], source[i]);

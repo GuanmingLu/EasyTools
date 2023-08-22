@@ -13,13 +13,20 @@ namespace EasyTools {
 		public void Pause() => IsPaused = true;
 		public void Resume() => IsPaused = false;
 	}
-	public class PauseTokens : List<IPauseHandler>, IPauseHandler {
-		public bool IsPaused => this.Any(t => t.IsPaused);
+	public class PauseTokens : IPauseHandler {
+		private HashSet<IPauseHandler> _tokens;
+		public bool IsPaused => _tokens.Any(t => t.IsPaused);
+
+		public PauseTokens(params IPauseHandler[] tokens) => _tokens = new(tokens);
+
+		public void Add(IPauseHandler token) => _tokens.Add(token);
+		public void Remove(IPauseHandler token) => _tokens.Remove(token);
+		public void Clear() => _tokens.Clear();
 	}
 
 
 	public static class Wait {
-		public static WaitForEndOfFrame EndOffFrame = new WaitForEndOfFrame();
+		public static readonly WaitForEndOfFrame EndOffFrame = new();
 
 		public static IEnumerator Seconds(float seconds, Func<bool> interruption, bool unscaledTime = false) {
 			float time = 0;
