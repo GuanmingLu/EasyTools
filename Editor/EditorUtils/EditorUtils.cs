@@ -53,8 +53,7 @@ namespace EasyTools.Editor {
 			GUILayout.Space(spacing);
 		}
 
-		public static string AssetPathToFullPath(string path) => Application.dataPath + path[6..];
-		public static string GetAssetFullPath(UnityEngine.Object obj) => AssetPathToFullPath(AssetDatabase.GetAssetPath(obj));
+		public static string GetAssetFullPath(UnityEngine.Object obj) => Path.GetFullPath(AssetDatabase.GetAssetPath(obj));
 
 		public static void ChooseProjectPath(ref string path) {
 			path = EditorGUILayout.TextArea(string.IsNullOrWhiteSpace(path) ? "请输入路径" : path);

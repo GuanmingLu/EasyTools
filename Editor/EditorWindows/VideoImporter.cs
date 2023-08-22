@@ -76,19 +76,23 @@ namespace EasyTools.Editor {
 
 			using (new Utils.BoxGroupScope("导入")) {
 				if (GUILayout.Button("导入视频")) {
-					var outputPath = $"{Utils.AssetPathToFullPath(_outputPath)}/{Path.GetFileNameWithoutExtension(_sourcePath)}.webm";
+					var outputPath = $"{Path.GetFullPath(_outputPath)}/{Path.GetFileNameWithoutExtension(_sourcePath)}.webm";
 					Ffmpeg($"-i \"{_sourcePath}\" -c:v libvpx -b:v {_bitrate} -s {_resolution.x}x{_resolution.y} -r {_frameRate} -c:a libvorbis \"{outputPath}\"");
 					AssetDatabase.Refresh();
 				}
 			}
 		}
 
-		private string _exeDir;
-		private string ExeDir => _exeDir ??= Path.GetDirectoryName(Utils.GetAssetFullPath(MonoScript.FromScriptableObject(this)));
-		private string FfmpegPath => ExeDir + "\\ffmpeg.exe";
+		private const string FfmpegPath = "Library/ffmpeg/ffmpeg.exe";
+		private const string FfProbePath = "Library/ffmpeg/ffprobe.exe";
+
 		private string FfProbe(string args) {
+			if (!File.Exists(FfProbePath)) {
+				UnityEngine.Debug.LogError($"<color=cyan>{FfProbePath}</color> Not Found!");
+				return string.Empty;
+			}
 			Process p = new();
-			p.StartInfo.FileName = ExeDir + "\\ffprobe.exe";
+			p.StartInfo.FileName = FfProbePath;
 			p.StartInfo.Arguments = args;
 			p.StartInfo.UseShellExecute = false;
 			p.StartInfo.RedirectStandardInput = true;
@@ -101,8 +105,12 @@ namespace EasyTools.Editor {
 		}
 
 		private void Ffmpeg(string args) {
+			if (!File.Exists(FfmpegPath)) {
+				UnityEngine.Debug.LogError($"<color=cyan>{FfmpegPath}</color> Not Found!");
+				return;
+			}
 			Process p = new();
-			p.StartInfo.FileName = ExeDir + "\\ffmpeg.exe";
+			p.StartInfo.FileName = FfmpegPath;
 			p.StartInfo.Arguments = args;
 			p.StartInfo.UseShellExecute = true;
 			p.Start();
