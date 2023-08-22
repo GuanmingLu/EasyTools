@@ -60,9 +60,31 @@ namespace EasyTools {
 		}
 
 		public static IEnumerable<Transform> GetChildren(this Transform self) => self.Cast<Transform>();
+		public static IEnumerable<Transform> ReversedChildren(this Transform self) {
+			for (var i = self.childCount - 1; i >= 0; i--) {
+				yield return self.GetChild(i);
+			}
+		}
 
-		public static void DestroySelf(this Component self) => UnityEngine.Object.Destroy(self.gameObject);
-		public static void DestroySelf(this UnityEngine.Object self) => UnityEngine.Object.Destroy(self);
+		public static void DestroySelf(this UnityEngine.Object self) {
+			if (self != null) UnityEngine.Object.Destroy(self);
+		}
+
+		public static void DestroySelf(this Component self) {
+			if (self != null && self.gameObject != null) UnityEngine.Object.Destroy(self.gameObject);
+		}
+
+		public static void DestroyAllChildren(this Transform self) {
+			for (int i = self.childCount - 1; i >= 0; i--) {
+				if (Application.isPlaying) {
+					UnityEngine.Object.Destroy(self.GetChild(i).gameObject);
+				}
+				else {
+					UnityEngine.Object.DestroyImmediate(self.GetChild(i).gameObject);
+				}
+			}
+		}
+
 
 		public static RectTransform ToRect(this Transform self) => self as RectTransform;
 		public static RectTransform GetRect(this GameObject self) => self.transform as RectTransform;
