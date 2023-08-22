@@ -5,9 +5,7 @@
 	"description": "",
 	"license": "MIT",
 	"unity": "2020.3",
-	"dependencies": {
-		"com.cysharp.unitask": "https://github.com/Cysharp/UniTask.git?path=src/UniTask/Assets/Plugins/UniTask#2.3.3"
-	},
+	"dependencies": {},
 	"repository": {
 		"type": "git",
 		"url": "https://github.com/GuanmingLu/EasyTools.git?path=Assets/Plugins/EasyTools"
