@@ -2,6 +2,7 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.SceneManagement;
+using System.Linq;
 #if UNITY_EDITOR
 using UnityEditor;
 #endif
@@ -10,7 +11,7 @@ namespace EasyTools.Settings {
 
 	public class EasyToolsSettings : ScriptableObject {
 		private static EasyToolsSettings _instance;
-		public static EasyToolsSettings Instance {
+		private static EasyToolsSettings Instance {
 			get {
 				if (_instance != null) return _instance;
 				_instance = Resources.Load<EasyToolsSettings>("EasyToolsSettings");
@@ -34,35 +35,47 @@ namespace EasyTools.Settings {
 			Instance.InstantiateOnStartup();
 		}
 
+		#region 滚动消息
+
+		[Header("滚动消息")]
+		[SerializeField] private bool m_showScrollLog;
+
+		public static bool ShowScrollLog {
+			get => Instance.m_showScrollLog;
+			set => Instance.m_showScrollLog = value;
+		}
+
+		#endregion
 
 		#region 对话
 
 		[Header("对话")]
-		[SerializeField] private SerializableDictionary<string, Sprite> avatarMap;
-		public bool TryGetAvatar(string key, out Sprite avatar) => avatarMap.TryGetValue(key, out avatar);
+		[SerializeField] private SerializableDictionary<string, Sprite> m_avatarMap;
+		[SerializeField] private float m_characterInterval = 0.02f;
+		[SerializeField] private KeyCode[] m_nextKeys = { KeyCode.Space, KeyCode.Mouse0 };
 
-		public float CharInterval => 0.02f;
-
-		public bool NextInput => Input.GetKeyDown(KeyCode.Space) || Input.GetMouseButtonDown(0);
+		public static bool TryGetAvatar(string key, out Sprite avatar) => Instance.m_avatarMap.TryGetValue(key, out avatar);
+		public static float CharInterval => Instance.m_characterInterval;
+		public static bool NextInput => Instance.m_nextKeys.Any(k => Input.GetKeyDown(k));
 
 		#endregion
 
 		#region 自动初始化
 
 		[Header("自动初始化")]
-		[SerializeField] private GameObject[] _dontDestroyOnLoad;
-		[SerializeField] private GameObject[] _onSceneLoaded;
+		[SerializeField] private GameObject[] m_dontDestroyOnLoad;
+		[SerializeField] private GameObject[] m_onSceneLoaded;
 
 		private void InstantiateOnStartup() {
 			SceneManager.sceneLoaded += InstantiateOnSceneLoaded;
 
-			foreach (var item in _dontDestroyOnLoad) {
+			foreach (var item in m_dontDestroyOnLoad) {
 				if (item != null) DontDestroyOnLoad(Instantiate(item));
 			}
 		}
 
 		private void InstantiateOnSceneLoaded(Scene scene, LoadSceneMode mode) {
-			foreach (var item in _onSceneLoaded) {
+			foreach (var item in m_onSceneLoaded) {
 				if (item != null) Instantiate(item);
 			}
 		}
