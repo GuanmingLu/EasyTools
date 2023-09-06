@@ -4,13 +4,13 @@ using UnityEngine;
 using TMPro;
 using System.Linq;
 using UnityEngine.UI;
+using EasyTools.Settings;
 
 namespace EasyTools.InternalComponent {
 	internal class EasyDialogComponent : MonoBehaviour {
 		[SerializeField] private TMP_Text m_nameText;
 		[SerializeField] private TMP_Text m_contentText;
 		[SerializeField] private Transform m_avatarRoot;
-		private Settings.EasyToolsSettings Settings => EasyTools.Settings.EasyToolsSettings.Instance;
 
 
 		#region Tag处理
@@ -60,7 +60,7 @@ namespace EasyTools.InternalComponent {
 				_avatars.Add(avatarName, avatar);
 			}
 
-			if (Settings.TryGetAvatar(key, out var sprite)) {
+			if (EasyToolsSettings.TryGetAvatar(key, out var sprite)) {
 				avatar.sprite = sprite;
 				avatar.SetNativeSize();
 				t.anchoredPosition = tag.GetV2("pos", Vector2.zero);
@@ -110,7 +110,7 @@ namespace EasyTools.InternalComponent {
 			_skipped = false;
 			while (true) {
 				yield return null;
-				if (Settings.NextInput) _skipped = true;
+				if (EasyToolsSettings.NextInput) _skipped = true;
 			}
 		}
 
@@ -129,14 +129,14 @@ namespace EasyTools.InternalComponent {
 			InputHandler().RunOn(this, ref _inputHandler);
 			var total = m_contentText.textInfo.characterCount;
 			for (int i = 0; i < total; i++) {
-				if (!_skipped) yield return Wait.Seconds(Settings.CharInterval);
+				if (!_skipped) yield return Wait.Seconds(EasyToolsSettings.CharInterval);
 				m_contentText.maxVisibleCharacters = i + 1;
 				OnCharacterShow(i);
 			}
 			this.StopCoroutine(ref _inputHandler);
 
 			yield return null;
-			yield return Wait.Until(() => Settings.NextInput);
+			yield return Wait.Until(() => EasyToolsSettings.NextInput);
 		}
 
 		private void OnCharacterShow(int index) {

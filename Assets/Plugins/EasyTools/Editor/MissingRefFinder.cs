@@ -12,7 +12,7 @@ using UnityEngine.SceneManagement;
 
 namespace EasyTools.Editor {
 
-	public class MissingReferencesFinder : MonoBehaviour {
+	internal class MissingReferencesFinder : MonoBehaviour {
 
 		private static IEnumerable<GameObject> GetSceneObjects()
 			=> Resources.FindObjectsOfTypeAll<GameObject>().Where(
@@ -20,7 +20,7 @@ namespace EasyTools.Editor {
 			);
 
 		[MenuItem("EasyTools/工具/查找场景内丢失的引用", false, 50)]
-		public static void FindMissingReferencesInCurrentScene() {
+		private static void FindMissingReferencesInCurrentScene() {
 			RefreshGUIDMap();
 			FindMissingReferences(SceneManager.GetActiveScene().path, GetSceneObjects());
 		}
@@ -78,7 +78,7 @@ namespace EasyTools.Editor {
 
 		private static Dictionary<string, HashSet<string>> _guidOfFileId = new();
 		private static Regex _scriptReg = new(@"  m_Script: \{fileID: 11500000, guid: (.+), type: 3\}", RegexOptions.Compiled);
-		public static void RefreshGUIDMap() {
+		private static void RefreshGUIDMap() {
 			_guidOfFileId.Clear();
 			var lines = File.ReadAllLines(Path.GetFullPath(SceneManager.GetActiveScene().path));
 			foreach (var (line, index) in lines.WithIndex()) {
