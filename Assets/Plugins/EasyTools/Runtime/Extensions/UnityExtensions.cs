@@ -1,4 +1,5 @@
 using System.Linq;
+using System.Text;
 using System;
 using System.Collections;
 using System.Collections.Generic;
@@ -101,5 +102,24 @@ namespace EasyTools {
 		public static void Deconstruct(this Vector2Int self, out int x, out int y) { x = self.x; y = self.y; }
 		public static void Deconstruct(this Vector3 self, out float x, out float y, out float z) { x = self.x; y = self.y; z = self.z; }
 		public static void Deconstruct(this Vector3Int self, out int x, out int y, out int z) { x = self.x; y = self.y; z = self.z; }
+
+#if UNITY_EDITOR
+
+		public static class Editor {
+			private static bool IsValidFolder(string path) => UnityEditor.AssetDatabase.IsValidFolder(path);
+			private static void CreateFolder(string parentFolder, string newFolderName) => UnityEditor.AssetDatabase.CreateFolder(parentFolder, newFolderName);
+			public static string EnsureFolder(params string[] folders) {
+				StringBuilder folderPath = new();
+				foreach (var (folder, index) in folders.WithIndex()) {
+					var parent = folderPath.ToString();
+					if (index != 0) folderPath.Append('/');
+					folderPath.Append(folder);
+					if (!IsValidFolder(folderPath.ToString())) CreateFolder(parent, folder);
+				}
+				return folderPath.ToString();
+			}
+		}
+
+#endif
 	}
 }

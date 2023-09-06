@@ -17,8 +17,8 @@ namespace EasyTools.Settings {
 #if UNITY_EDITOR
 				if (_instance == null) {
 					_instance = CreateInstance<EasyToolsSettings>();
-					if (!AssetDatabase.IsValidFolder("Assets/Resources")) AssetDatabase.CreateFolder("Assets", "Resources");
-					AssetDatabase.CreateAsset(_instance, "Assets/Resources/EasyToolsSettings.asset");
+					var path = UnityExtensions.Editor.EnsureFolder("Assets", "Plugins", "EasyTools", "Resources") + "/EasyToolsSettings.asset";
+					AssetDatabase.CreateAsset(_instance, path);
 					AssetDatabase.SaveAssets();
 					AssetDatabase.Refresh();
 					EditorUtility.SetDirty(_instance);
