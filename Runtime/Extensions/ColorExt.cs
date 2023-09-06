@@ -4,7 +4,12 @@ using System.Collections.Generic;
 using UnityEngine;
 
 namespace EasyTools {
-	public static class ColorExt {
+
+	/// <summary>
+	/// 使用 32 位无符号整型（uint / System.UInt32）表示的颜色 <br/>
+	/// 整型格式为 0xRRGGBBAA，Alpha 通道不可以省略
+	/// </summary>
+	public static class ColorU {
 		#region 颜色常量
 
 		public const uint
