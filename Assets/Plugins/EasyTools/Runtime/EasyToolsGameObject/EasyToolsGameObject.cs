@@ -30,7 +30,6 @@ namespace EasyTools {
 
 		private void Awake() {
 			InitScrollMsg();
-			InitTransMask();
 			InitGameSettingsPanel();
 		}
 
