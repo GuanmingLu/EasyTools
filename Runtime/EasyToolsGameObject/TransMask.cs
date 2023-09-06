@@ -8,18 +8,14 @@ namespace EasyTools {
 	partial class EasyToolsGameObject {
 		[Header("TransMask")]
 		[SerializeField] private Image m_mask;
-		[SerializeField] private Text m_text;
-		[SerializeField] private GameObject m_loading;
-
 		private CanvasGroup _canvasGroup;
 		private CanvasGroup CanvasGroup => _canvasGroup ??= m_mask.GetComponent<CanvasGroup>();
 
-		private void InitTransMask() {
-			MaskColor = Color.black;
-			MaskAlpha = 0;
-			MaskText = "";
-			MaskEnabled = false;
-		}
+		[SerializeField] private Text m_text;
+		internal Text MaskText => m_text;
+
+		[SerializeField] private Image m_loading;
+		internal Image LoadingIcon => m_loading;
 
 		internal bool MaskEnabled {
 			get => m_mask.gameObject.activeSelf;
@@ -34,16 +30,6 @@ namespace EasyTools {
 		internal Color MaskColor {
 			get => m_mask.color;
 			set => m_mask.color = value;
-		}
-
-		internal string MaskText {
-			get => m_text.text;
-			set => m_text.text = value;
-		}
-
-		internal bool IsLoading {
-			get => m_loading != null && m_loading.activeSelf;
-			set => m_loading?.SetActive(value);
 		}
 	}
 
@@ -64,25 +50,41 @@ namespace EasyTools {
 		/// <summary>
 		/// 遮罩颜色
 		/// </summary>
-		public static uint MaskColor {
-			get => Instance.MaskColor.ToUInt();
-			set => Instance.MaskColor = ColorExt.Parse(value);
+		public static Color MaskColor {
+			get => Instance.MaskColor;
+			set => Instance.MaskColor = value;
 		}
 
 		/// <summary>
 		/// 遮罩上的文字
 		/// </summary>
 		public static string Text {
-			get => Instance.MaskText;
-			set => Instance.MaskText = value;
+			get => Instance.MaskText.text;
+			set => Instance.MaskText.text = value;
+		}
+
+		/// <summary>
+		/// 遮罩上的文字颜色
+		/// </summary>
+		public static Color TextColor {
+			get => Instance.MaskText.color;
+			set => Instance.MaskText.color = value;
 		}
 
 		/// <summary>
 		/// 是否显示加载图标
 		/// </summary>
 		public static bool IsLoading {
-			get => Instance.IsLoading;
-			set => Instance.IsLoading = value;
+			get => Instance.LoadingIcon.gameObject.activeSelf;
+			set => Instance.LoadingIcon.gameObject.SetActive(value);
+		}
+
+		/// <summary>
+		/// 加载图标的颜色
+		/// </summary>
+		public static Color LoadingColor {
+			get => Instance.LoadingIcon.color;
+			set => Instance.LoadingIcon.color = value;
 		}
 
 		private static Easing _showMask = new Easing(Instance, 0, 1, EasingType.Linear)
@@ -98,18 +100,12 @@ namespace EasyTools {
 		/// <summary>
 		/// 遮罩淡入
 		/// </summary>
-		public static Coroutine ShowMask(float fadeSeconds = 0.5f, uint color = 0xFFFFFFFF) {
-			MaskColor = color;
-			return _showMask.SetDuration(fadeSeconds).RunForward().Coroutine;
-		}
+		public static Coroutine ShowMask(float fadeSeconds = 0.5f) => _showMask.SetDuration(fadeSeconds).RunForward().Coroutine;
 
 		/// <summary>
 		/// 遮罩淡出
 		/// </summary>
-		public static Coroutine HideMask(float fadeSeconds = 0.5f, uint color = 0xFFFFFFFF) {
-			MaskColor = color;
-			return _showMask.SetDuration(fadeSeconds).RunBackward().Coroutine;
-		}
+		public static Coroutine HideMask(float fadeSeconds = 0.5f) => _showMask.SetDuration(fadeSeconds).RunBackward().Coroutine;
 
 		/// <summary>
 		/// 简易的加载场景方法

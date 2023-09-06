@@ -2777,7 +2777,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   m_Material: {fileID: 0}
-  m_Color: {r: 0, g: 0, b: 0, a: 1}
+  m_Color: {r: 1, g: 1, b: 1, a: 1}
   m_RaycastTarget: 1
   m_RaycastPadding: {x: 0, y: 0, z: 0, w: 0}
   m_Maskable: 1
@@ -3491,7 +3491,7 @@ MonoBehaviour:
   m_holdToSkipFill: {fileID: 3080002529488905530}
   m_mask: {fileID: 7264132758794481838}
   m_text: {fileID: 5732852409712655850}
-  m_loading: {fileID: 4265687805159587302}
+  m_loading: {fileID: 6668107177802192685}
 --- !u!1 &7041630973369197927
 GameObject:
   m_ObjectHideFlags: 0
