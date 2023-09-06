@@ -13,7 +13,7 @@ namespace EasyTools {
 		/// 添加一条滚动消息
 		/// </summary>
 		/// <param name="duration">该消息停留的时间</param>
-		public static void Show(string message, float duration = 3f) => Instance.ShowMsg(message, duration);
+		public static void Show(string message, float duration = 3f, uint color = ColorU.white) => Instance.ShowMsg(message, duration, color);
 
 		public static void Log(string message, float duration = 3f, bool forceShow = false) {
 			if (forceShow || EasyToolsSettings.ShowScrollLog) {
@@ -25,14 +25,14 @@ namespace EasyTools {
 		public static void Warn(string message, float duration = 3f, bool forceShow = false) {
 			if (forceShow || EasyToolsSettings.ShowScrollLog) {
 				Debug.LogWarning(message);
-				Instance.ShowMsg($"<color=#ffc107>[Warn] {message}</color>", duration);
+				Instance.ShowMsg($"[Warn] {message}", duration, 0xFFC107FF);
 			}
 		}
 
 		public static void Error(string message, float duration = 3f, bool forceShow = false) {
 			if (forceShow || EasyToolsSettings.ShowScrollLog) {
 				Debug.LogError(message);
-				Instance.ShowMsg($"<color=#ff534a>[Error] {message}</color>", duration);
+				Instance.ShowMsg($"[Error] {message}", duration, 0xFF534AFF);
 			}
 		}
 	}

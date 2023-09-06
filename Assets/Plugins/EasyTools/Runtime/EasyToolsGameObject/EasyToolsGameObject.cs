@@ -1,4 +1,4 @@
-﻿using System.Collections;
+using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 using EasyTools.InternalComponent;
@@ -38,8 +38,8 @@ namespace EasyTools {
 		[Header("ScrollMsg")]
 		[SerializeField] private VerticalLayoutGroup m_scrollMsgHolder;
 		[SerializeField] private GameObject m_scrollMsgPrefab;
-		[SerializeField] private float m_messageFadeOutTime = 1f;
-		[SerializeField] private float m_scrollTime = 0.5f;
+		private const float MessageFadeOutTime = 1f;
+		private const float ScrollTime = 0.5f;
 
 		private float _height;
 		private Vector2 _defaultPos;
@@ -52,15 +52,15 @@ namespace EasyTools {
 		}
 
 		Coroutine _scrollCoroutine;
-		internal void ShowMsg(string message, float duration = 3f) {
+		internal void ShowMsg(string message, float duration = 3f, uint color = ColorU.white) {
 			if (message == null) return;
 
-			Instantiate(m_scrollMsgPrefab, _rect).GetComponent<ScrollItem>().Show(message, m_scrollTime, duration, m_messageFadeOutTime);
+			Instantiate(m_scrollMsgPrefab, _rect).GetComponent<ScrollItem>().Show(message, ScrollTime, duration, MessageFadeOutTime, ColorU.Parse(color));
 
 			_rect.anchoredPosition -= new Vector2(0, _height);
 
 			var startPos = _rect.anchoredPosition;
-			EasyTween.Linear(m_scrollTime, d => _rect.anchoredPosition = Vector2.Lerp(startPos, _defaultPos, d)).RunOn(this, ref _scrollCoroutine);
+			EasyTween.Linear(ScrollTime, d => _rect.anchoredPosition = Vector2.Lerp(startPos, _defaultPos, d)).RunOn(this, ref _scrollCoroutine);
 		}
 
 		#endregion

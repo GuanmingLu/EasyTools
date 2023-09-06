@@ -18,9 +18,10 @@ namespace EasyTools.InternalComponent {
 		/// <param name="showTime">淡入时间</param>
 		/// <param name="duration">显示持续时间</param>
 		/// <param name="fadeOutTime">淡出时间</param>
-		public void Show(string text, float showTime, float duration, float fadeOutTime) {
+		public void Show(string text, float showTime, float duration, float fadeOutTime, Color textColor) {
 			self.text = text;
-			self.SetA(0);
+			textColor.a = 0;
+			self.color = textColor;
 			IEnumerator C() {
 				yield return EasyTween.Linear(showTime, self.SetA, self.color.a, 1);
 				yield return Wait.Seconds(duration);
