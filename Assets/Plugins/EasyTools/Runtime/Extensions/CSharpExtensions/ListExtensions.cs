@@ -114,6 +114,38 @@ namespace EasyTools {
 		/// <summary> 随机选取列表中的一个元素 </summary>
 		public static T ChooseRandom<T>(this IEnumerable<T> source) => source.ElementAt(RandInt(0, source.Count()));
 
+		public static bool TryGetAt<T>(this IEnumerable<T> source, int index, out T result) {
+			if (0 <= index && index < source.Count()) {
+				result = source.ElementAt(index);
+				return true;
+			}
+			result = default;
+			return false;
+		}
+
+		public static bool TryGetAt<T>(this IEnumerable<T> source, int startIndex, out T result0, out T result1) {
+			if (0 <= startIndex && startIndex < source.Count() - 1) {
+				result0 = source.ElementAt(startIndex);
+				result1 = source.ElementAt(startIndex + 1);
+				return true;
+			}
+			result0 = default;
+			result1 = default;
+			return false;
+		}
+
+		public static bool TryGetAt<T>(this IEnumerable<T> source, int startIndex, out T result0, out T result1, out T result2) {
+			if (0 <= startIndex && startIndex < source.Count() - 2) {
+				result0 = source.ElementAt(startIndex);
+				result1 = source.ElementAt(startIndex + 1);
+				result2 = source.ElementAt(startIndex + 2);
+				return true;
+			}
+			result0 = default;
+			result1 = default;
+			result2 = default;
+			return false;
+		}
 
 		public static void Shuffle<T>(this IList<T> source) {
 			for (int i = 0; i < source.Count; i++) {
