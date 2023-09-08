@@ -1,6 +1,6 @@
 {
     "name": "EasyTools.Editor",
-    "rootNamespace": "",
+    "rootNamespace": "EasyTools.Editor",
     "references": [
         "EasyTools"
     ],
