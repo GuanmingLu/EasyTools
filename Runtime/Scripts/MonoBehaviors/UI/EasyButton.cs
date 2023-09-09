@@ -11,10 +11,10 @@ namespace EasyTools.UI {
 	public class EasyButton : EasySelectable, IPointerClickHandler, ISubmitHandler {
 		[SerializeField] private UnityEvent m_OnClick = new();
 		public UnityEvent OnClick => m_OnClick;
-		[SerializeField] private float m_doubleClickTime = 0.4f;
+		[SerializeField] private float m_doubleClickTime = 0;
 		[SerializeField] public UnityEvent m_OnDoubleClick = new();
 		public UnityEvent OnDoubleClick => m_OnDoubleClick;
-		[SerializeField] private float m_longPressTime = 0.4f;
+		[SerializeField] private float m_longPressTime = float.MaxValue;
 		[SerializeField] private UnityEvent m_OnLongPress = new();
 		public UnityEvent OnLongPress => m_OnLongPress;
 

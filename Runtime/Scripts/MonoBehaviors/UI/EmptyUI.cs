@@ -7,8 +7,11 @@ namespace EasyTools.UI {
 
 	[RequireComponent(typeof(CanvasRenderer))]
 	public class EmptyUI : Graphic {
+#if UNITY_EDITOR
 		protected override void Reset() {
 			color = Color.clear;
+			base.Reset();
 		}
+#endif
 	}
 }
