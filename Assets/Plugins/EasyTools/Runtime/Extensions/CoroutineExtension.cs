@@ -37,7 +37,7 @@ namespace EasyTools {
 
 		public static IEnumerator Yield(this IEnumerator func, Action onFinished = null) {
 			yield return func;
-			onFinished();
+			onFinished?.Invoke();
 		}
 
 		public static IEnumerator Yield(this YieldInstruction instruction, Action onFinished = null) {

@@ -17,7 +17,6 @@ namespace EasyTools.InternalComponent {
 
 		private const string AvailableSingleTags = "showAvatar|oneAvatar";
 		private const string AvailableRangeTags = "shake|wave";
-		private const string SingleTagLink = "cTag";
 
 		private string PreProcessDialog(string dialog) => TMP_TagExtension.PreProcessDialog(dialog, AvailableSingleTags, AvailableRangeTags);
 
@@ -131,16 +130,12 @@ namespace EasyTools.InternalComponent {
 			for (int i = 0; i < total; i++) {
 				if (!_skipped) yield return Wait.Seconds(EasyToolsSettings.CharInterval);
 				m_contentText.maxVisibleCharacters = i + 1;
-				OnCharacterShow(i);
+				m_contentText.TagsAt(i, OnSingleTagShow);
 			}
 			this.StopCoroutine(ref _inputHandler);
 
 			yield return null;
 			yield return Wait.Until(() => EasyToolsSettings.NextInput);
-		}
-
-		private void OnCharacterShow(int index) {
-			m_contentText.GetSingleTagsOfIndex(index).ForEach(OnSingleTagShow);
 		}
 
 		#endregion

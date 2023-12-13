@@ -10,7 +10,7 @@ namespace EasyTools {
 	public struct TMP_SingleTag {
 		public string name;
 		public Dictionary<string, string> parameters;
-		public string MainParam => parameters[name];
+		public readonly string MainParam => parameters[name];
 		public int index;
 
 		public readonly bool GetBool(string key, bool defaultValue = false)
@@ -62,7 +62,7 @@ namespace EasyTools {
 					var index = s.IndexOf('=');
 					return index >= 0 ? new KeyValuePair<string, string>(s[..index], s[(index + 1)..]) : new KeyValuePair<string, string>(s, string.Empty);
 				});
-				return new TMP_SingleTag {
+				return new() {
 					name = parameters.First().Key,
 					parameters = parameters.ToDictionary(),
 					index = link.linkTextfirstCharacterIndex
@@ -73,8 +73,8 @@ namespace EasyTools {
 			}
 		}
 
-		public static IEnumerable<TMP_SingleTag> GetSingleTagsOfIndex(this TMP_Text text, int index) => text.GetSingleTags().Where(t => t.index == index);
-
 		public static IEnumerable<TMP_SingleTag> GetSingleTags(this TMP_Text text) => text.textInfo.linkInfo.Take(text.textInfo.linkCount).SelectNotNull(GetSingleTag);
+		public static IEnumerable<TMP_SingleTag> GetSingleTagsOfIndex(this TMP_Text text, int index) => text.GetSingleTags().Where(t => t.index == index);
+		public static void TagsAt(this TMP_Text text, int index, Action<TMP_SingleTag> action) => text.GetSingleTagsOfIndex(index).ForEach(action);
 	}
 }
