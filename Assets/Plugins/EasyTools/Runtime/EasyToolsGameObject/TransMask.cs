@@ -118,6 +118,8 @@ namespace EasyTools {
 				IsLoading = true;
 				yield return ShowMask(0.5f);
 				yield return SceneManager.LoadSceneAsync(sceneName);
+				yield return null;
+				yield return null;
 				yield return HideMask(0.5f);
 				IsLoading = false;
 			}
@@ -135,6 +137,8 @@ namespace EasyTools {
 				IsLoading = true;
 				yield return ShowMask(0.5f);
 				yield return SceneManager.LoadSceneAsync(buildIndex);
+				yield return null;
+				yield return null;
 				yield return HideMask(0.5f);
 				IsLoading = false;
 			}
