@@ -79,6 +79,7 @@ namespace EasyTools {
 						if (!field.IsStatic) continue;
 						var key = string.IsNullOrEmpty(attr.Key) ? $"{type.AssemblyQualifiedName} -> {field.Name}" : attr.Key;
 						members.Add(key, field);
+						Debug.Log($"EasySave reg field: {key}");
 					}
 					foreach (var prop in type.GetProperties()) {
 						var attr = prop.GetCustomAttribute<RegAttribute>();
@@ -87,6 +88,7 @@ namespace EasyTools {
 						if (!prop.GetSetMethod().IsStatic || !prop.GetGetMethod().IsStatic) continue;
 						var key = string.IsNullOrEmpty(attr.Key) ? $"{type.AssemblyQualifiedName} -> {prop.Name}" : attr.Key;
 						members.Add(key, prop);
+						Debug.Log($"EasySave reg prop: {key}");
 					}
 				}
 			}
