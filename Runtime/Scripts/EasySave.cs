@@ -3,11 +3,49 @@ using System;
 using System.Collections.Generic;
 using UnityEngine;
 using System.Reflection;
+using System.Threading.Tasks;
 
 namespace EasyTools {
 
 	public static class EasySave {
 		private static Dictionary<string, object> data = new();
+		private static Dictionary<string, MemberInfo> members = new();
+
+		private const BindingFlags flags = BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Static;
+		private static Task _registerTask;
+
+		public class RegAttribute : Attribute {
+			public RegAttribute() { }
+			public RegAttribute(string customKey) => Key = customKey;
+			public string Key { get; }
+		}
+
+		[RuntimeInitializeOnLoadMethod(RuntimeInitializeLoadType.BeforeSceneLoad)]
+		private static void RegisterAttribute() => _registerTask = Task.Run(RegisterAttributeTask);
+		private static void RegisterAttributeTask() {
+			foreach (var asm in AppDomain.CurrentDomain.GetAssemblies()) {
+				var asmName = asm.FullName;
+				if (
+					asmName.StartsWith("Unity.") || asmName.StartsWith("UnityEngine.") || asmName.StartsWith("UnityEditor.") ||
+					asmName.StartsWith("System.") || asmName.StartsWith("mscorlib")
+				) continue;
+				foreach (var type in asm.GetTypes()) {
+					foreach (var field in type.GetFields(flags)) {
+						var attr = field.GetCustomAttribute<RegAttribute>();
+						if (attr == null) continue;
+						var key = string.IsNullOrEmpty(attr.Key) ? $"{type.AssemblyQualifiedName} -> {field.Name}" : attr.Key;
+						members.Add(key, field);
+					}
+					foreach (var prop in type.GetProperties(flags)) {
+						var attr = prop.GetCustomAttribute<RegAttribute>();
+						if (attr == null) continue;
+						if (!prop.CanWrite || !prop.CanRead) continue;
+						var key = string.IsNullOrEmpty(attr.Key) ? $"{type.AssemblyQualifiedName} -> {prop.Name}" : attr.Key;
+						members.Add(key, prop);
+					}
+				}
+			}
+		}
 
 		private static string directory = "EasySave";
 		private static string tempFileName = "EasySaveTemp";
@@ -25,6 +63,7 @@ namespace EasyTools {
 		public static void SaveTo(string fileName) {
 			Directory.CreateDirectory(SaveDir);
 			if (DoClear) data.Clear();
+			_registerTask.Wait();
 			foreach (var (key, member) in members) {
 				data[key] = member switch {
 					FieldInfo field => field.GetValue(null),
@@ -47,6 +86,7 @@ namespace EasyTools {
 			// TODO 异步读取
 			var json = File.ReadAllText(GetFilePath(fileName));
 			data = json.FromJson<Dictionary<string, object>>();
+			_registerTask.Wait();
 			foreach (var (key, member) in members) {
 				if (data.TryGetValue(key, out var value)) {
 					switch (member) {
@@ -56,39 +96,6 @@ namespace EasyTools {
 						case PropertyInfo prop:
 							prop.SetValue(null, value);
 							break;
-					}
-				}
-			}
-		}
-
-		public class RegAttribute : Attribute {
-			public RegAttribute() { }
-			public RegAttribute(string customKey) => Key = customKey;
-			public string Key { get; }
-		}
-
-		private static Dictionary<string, MemberInfo> members = new();
-
-		[RuntimeInitializeOnLoadMethod(RuntimeInitializeLoadType.BeforeSceneLoad)]
-		private static void RegisterAttribute() {
-			foreach (var asm in AppDomain.CurrentDomain.GetAssemblies()) {
-				foreach (var type in asm.GetTypes()) {
-					foreach (var field in type.GetFields()) {
-						var attr = field.GetCustomAttribute<RegAttribute>();
-						if (attr == null) continue;
-						if (!field.IsStatic) continue;
-						var key = string.IsNullOrEmpty(attr.Key) ? $"{type.AssemblyQualifiedName} -> {field.Name}" : attr.Key;
-						members.Add(key, field);
-						Debug.Log($"EasySave reg field: {key}");
-					}
-					foreach (var prop in type.GetProperties()) {
-						var attr = prop.GetCustomAttribute<RegAttribute>();
-						if (attr == null) continue;
-						if (!prop.CanWrite || !prop.CanRead) continue;
-						if (!prop.GetSetMethod().IsStatic || !prop.GetGetMethod().IsStatic) continue;
-						var key = string.IsNullOrEmpty(attr.Key) ? $"{type.AssemblyQualifiedName} -> {prop.Name}" : attr.Key;
-						members.Add(key, prop);
-						Debug.Log($"EasySave reg prop: {key}");
 					}
 				}
 			}
