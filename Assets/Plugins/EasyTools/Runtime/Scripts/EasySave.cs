@@ -98,10 +98,10 @@ namespace EasyTools {
 				if (data.TryGetValue(key, out var value)) {
 					switch (member) {
 						case FieldInfo field:
-							field.SetValue(null, value);
+							field.SetValue(null, Convert.ChangeType(value, field.FieldType));
 							break;
 						case PropertyInfo prop:
-							prop.SetValue(null, value);
+							prop.SetValue(null, Convert.ChangeType(value, prop.PropertyType));
 							break;
 					}
 				}
