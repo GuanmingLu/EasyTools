@@ -74,16 +74,17 @@ namespace EasyTools {
 			foreach (var asm in AppDomain.CurrentDomain.GetAssemblies()) {
 				foreach (var type in asm.GetTypes()) {
 					foreach (var field in type.GetFields()) {
-						if (!field.IsStatic) continue;
 						var attr = field.GetCustomAttribute<RegAttribute>();
 						if (attr == null) continue;
+						if (!field.IsStatic) continue;
 						var key = string.IsNullOrEmpty(attr.Key) ? $"{type.AssemblyQualifiedName} -> {field.Name}" : attr.Key;
 						members.Add(key, field);
 					}
 					foreach (var prop in type.GetProperties()) {
-						if (!prop.CanWrite || !prop.CanRead || !prop.GetSetMethod().IsStatic || !prop.GetGetMethod().IsStatic) continue;
 						var attr = prop.GetCustomAttribute<RegAttribute>();
 						if (attr == null) continue;
+						if (!prop.CanWrite || !prop.CanRead) continue;
+						if (!prop.GetSetMethod().IsStatic || !prop.GetGetMethod().IsStatic) continue;
 						var key = string.IsNullOrEmpty(attr.Key) ? $"{type.AssemblyQualifiedName} -> {prop.Name}" : attr.Key;
 						members.Add(key, prop);
 					}
