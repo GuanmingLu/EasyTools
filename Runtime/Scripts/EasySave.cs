@@ -20,8 +20,11 @@ namespace EasyTools {
 			public string Key { get; }
 		}
 
-		[RuntimeInitializeOnLoadMethod(RuntimeInitializeLoadType.BeforeSceneLoad)]
-		private static void RegisterAttribute() => _registerTask = Task.Run(RegisterAttributeTask);
+		[RuntimeInitializeOnLoadMethod(RuntimeInitializeLoadType.AfterAssembliesLoaded)]
+		private static void RegisterAttribute() {
+			if (_registerTask != null) return;
+			_registerTask = Task.Run(RegisterAttributeTask);
+		}
 		private static void RegisterAttributeTask() {
 			foreach (var asm in AppDomain.CurrentDomain.GetAssemblies()) {
 				var asmName = asm.FullName;
@@ -46,6 +49,10 @@ namespace EasyTools {
 				}
 			}
 		}
+		private static void WaitForRegister() {
+			RegisterAttribute();
+			_registerTask.Wait();
+		}
 
 		private static string directory = "EasySave";
 		private static string tempFileName = "EasySaveTemp";
@@ -63,7 +70,7 @@ namespace EasyTools {
 		public static void SaveTo(string fileName) {
 			Directory.CreateDirectory(SaveDir);
 			if (DoClear) data.Clear();
-			_registerTask.Wait();
+			WaitForRegister();
 			foreach (var (key, member) in members) {
 				data[key] = member switch {
 					FieldInfo field => field.GetValue(null),
@@ -86,7 +93,7 @@ namespace EasyTools {
 			// TODO 异步读取
 			var json = File.ReadAllText(GetFilePath(fileName));
 			data = json.FromJson<Dictionary<string, object>>();
-			_registerTask.Wait();
+			WaitForRegister();
 			foreach (var (key, member) in members) {
 				if (data.TryGetValue(key, out var value)) {
 					switch (member) {
