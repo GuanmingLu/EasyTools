@@ -103,6 +103,11 @@ namespace EasyTools {
 		public static void Deconstruct(this Vector3 self, out float x, out float y, out float z) { x = self.x; y = self.y; z = self.z; }
 		public static void Deconstruct(this Vector3Int self, out int x, out int y, out int z) { x = self.x; y = self.y; z = self.z; }
 
+		/// <summary>
+		/// 如果对象==null，则返回真正的null
+		/// </summary>
+		public static T NullCheck<T>(this T self) where T : UnityEngine.Object => self == null ? null : self;
+
 #if UNITY_EDITOR
 
 		public static class Editor {
