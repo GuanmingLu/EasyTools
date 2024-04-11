@@ -2,14 +2,12 @@ using System.IO;
 using System;
 using System.Collections.Generic;
 using UnityEngine;
+using System.Reflection;
 
 namespace EasyTools {
 
 	public static class EasySave {
-		private struct SaveLoadAction { public Action saveAction, loadAction; }
-		private static int id = 0;
-		private static Dictionary<int, object> data = new Dictionary<int, object>();
-		private static Dictionary<int, SaveLoadAction> actions = new Dictionary<int, SaveLoadAction>();
+		private static Dictionary<string, object> data = new();
 
 		private static string directory = "EasySave";
 		private static string tempFileName = "EasySaveTemp";
@@ -25,9 +23,15 @@ namespace EasyTools {
 		public static void Save() => SaveTo(tempFileName);
 		public static void SaveTo(int index) => SaveTo(IndexFileName(index));
 		public static void SaveTo(string fileName) {
-			if (DoClear) data.Clear();
-			actions.Values.ForEach(a => a.saveAction());
 			Directory.CreateDirectory(SaveDir);
+			if (DoClear) data.Clear();
+			foreach (var (key, member) in members) {
+				data[key] = member switch {
+					FieldInfo field => field.GetValue(null),
+					PropertyInfo prop => prop.GetValue(null),
+					_ => null
+				};
+			}
 			// TODO 异步保存
 			File.WriteAllText(GetFilePath(fileName), data.ToJson());
 		}
@@ -42,40 +46,61 @@ namespace EasyTools {
 			}
 			// TODO 异步读取
 			var json = File.ReadAllText(GetFilePath(fileName));
-			data = json.FromJson<Dictionary<int, object>>();
-			actions.Values.ForEach(a => a.loadAction());
+			data = json.FromJson<Dictionary<string, object>>();
+			foreach (var (key, member) in members) {
+				if (data.TryGetValue(key, out var value)) {
+					switch (member) {
+						case FieldInfo field:
+							field.SetValue(null, value);
+							break;
+						case PropertyInfo prop:
+							prop.SetValue(null, value);
+							break;
+					}
+				}
+			}
 		}
 
-		public static int Register<T>(Func<T> saveData, Action<T> loadData) => Register<T>(saveData, loadData, null);
-		public static int Register<T>(Func<T> saveData, Action<T> loadData, Action onLoadFailed) {
-			var key = id++;
-			actions.Add(key, new SaveLoadAction() {
-				saveAction = () => { data[key] = saveData(); },
-				loadAction = () => {
-					if (data.ContainsKey(key)) loadData(data[key].JsonConvertTo<T>());
-					else onLoadFailed?.Invoke();
-				}
-			});
-			return key;
+		public class RegAttribute : Attribute {
+			public RegAttribute() { }
+			public RegAttribute(string customKey) => Key = customKey;
+			public string Key { get; }
 		}
-		public static int Register<T>(Func<T> saveData, Action<T> loadData, T defaultValue) {
-			var key = id++;
-			actions.Add(key, new SaveLoadAction() {
-				saveAction = () => { data[key] = saveData(); },
-				loadAction = () => {
-					if (data.ContainsKey(key)) loadData(data[key].JsonConvertTo<T>());
-					else loadData(defaultValue);
+
+		private static Dictionary<string, MemberInfo> members = new();
+
+		[RuntimeInitializeOnLoadMethod(RuntimeInitializeLoadType.BeforeSceneLoad)]
+		private static void RegisterAttribute() {
+			foreach (var asm in AppDomain.CurrentDomain.GetAssemblies()) {
+				foreach (var type in asm.GetTypes()) {
+					foreach (var field in type.GetFields()) {
+						if (!field.IsStatic) continue;
+						var attr = field.GetCustomAttribute<RegAttribute>();
+						if (attr == null) continue;
+						var key = string.IsNullOrEmpty(attr.Key) ? $"{type.AssemblyQualifiedName} -> {field.Name}" : attr.Key;
+						members.Add(key, field);
+					}
+					foreach (var prop in type.GetProperties()) {
+						if (!prop.CanWrite || !prop.CanRead || !prop.GetSetMethod().IsStatic || !prop.GetGetMethod().IsStatic) continue;
+						var attr = prop.GetCustomAttribute<RegAttribute>();
+						if (attr == null) continue;
+						var key = string.IsNullOrEmpty(attr.Key) ? $"{type.AssemblyQualifiedName} -> {prop.Name}" : attr.Key;
+						members.Add(key, prop);
+					}
 				}
-			});
-			return key;
+			}
 		}
-		public static bool Unregister(int id) => actions.Remove(id);
 
 #if UNITY_EDITOR
 		[UnityEditor.MenuItem("EasyTools/EasySave/Open Directory")]
 		private static void OpenDir() {
 			Directory.CreateDirectory(SaveDir);
 			System.Diagnostics.Process.Start(SaveDir);
+		}
+
+		[UnityEditor.MenuItem("EasyTools/EasySave/Clear Temp")]
+		private static void ClearTemp() {
+			File.Delete(GetFilePath(tempFileName));
 		}
 #endif
 	}
