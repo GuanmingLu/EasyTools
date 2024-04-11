@@ -4,11 +4,12 @@ using System.Collections.Generic;
 using UnityEngine;
 using System.Reflection;
 using System.Threading.Tasks;
+using Newtonsoft.Json.Linq;
 
 namespace EasyTools {
 
 	public static class EasySave {
-		private static Dictionary<string, object> data = new();
+		private static JObject data = new();
 		private static Dictionary<string, MemberInfo> members = new();
 
 		private const BindingFlags flags = BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Static;
@@ -69,39 +70,38 @@ namespace EasyTools {
 		public static void SaveTo(int index) => SaveTo(IndexFileName(index));
 		public static void SaveTo(string fileName) {
 			Directory.CreateDirectory(SaveDir);
-			if (DoClear) data.Clear();
+			if (DoClear) data.RemoveAll();
 			WaitForRegister();
 			foreach (var (key, member) in members) {
-				data[key] = member switch {
+				data[key] = JToken.FromObject(member switch {
 					FieldInfo field => field.GetValue(null),
 					PropertyInfo prop => prop.GetValue(null),
 					_ => null
-				};
+				});
 			}
 			// TODO 异步保存
-			File.WriteAllText(GetFilePath(fileName), data.ToJson());
+			File.WriteAllText(GetFilePath(fileName), data.ToString());
 		}
 
 		public static void Load() => LoadFrom(tempFileName);
 		public static void LoadFrom(int index) => LoadFrom(IndexFileName(index));
 		public static void LoadFrom(string fileName) {
-			if (DoClear) data.Clear();
+			if (DoClear) data.RemoveAll();
 			if (!Exists(fileName)) {
 				Debug.LogError($"试图读取不存在的存档文件：{fileName}");
 				return;
 			}
 			// TODO 异步读取
-			var json = File.ReadAllText(GetFilePath(fileName));
-			data = json.FromJson<Dictionary<string, object>>();
+			data = JObject.Parse(File.ReadAllText(GetFilePath(fileName)));
 			WaitForRegister();
 			foreach (var (key, member) in members) {
 				if (data.TryGetValue(key, out var value)) {
 					switch (member) {
 						case FieldInfo field:
-							field.SetValue(null, Convert.ChangeType(value, field.FieldType));
+							field.SetValue(null, value.ToObject(field.FieldType));
 							break;
 						case PropertyInfo prop:
-							prop.SetValue(null, Convert.ChangeType(value, prop.PropertyType));
+							prop.SetValue(null, value.ToObject(prop.PropertyType));
 							break;
 					}
 				}

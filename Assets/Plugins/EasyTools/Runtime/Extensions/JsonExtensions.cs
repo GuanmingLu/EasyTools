@@ -11,6 +11,7 @@ namespace EasyTools {
 		public static object FromJson(this string json, Type type) => JsonConvert.DeserializeObject(json, type, _settings);
 		public static T FromJson<T>(this string json) => JsonConvert.DeserializeObject<T>(json, _settings);
 		public static T JsonConvertTo<T>(this object obj) => FromJson<T>(ToJson(obj));
+		public static object JsonConvertTo(this object obj, Type type) => FromJson(ToJson(obj), type);
 		public static bool TryToObj<T>(this JToken self, out T value) {
 			if (self != null) {
 				value = self.ToObject<T>();
