@@ -7,9 +7,14 @@ using UnityEngine;
 using UnityEditor;
 #endif
 
-namespace EasyTools.Settings {
+namespace EasyTools {
 	public class ResourceSingleton<T> : ScriptableObject where T : ResourceSingleton<T> {
-		private static string FileName => $"{typeof(T).Namespace}.{typeof(T).Name}";
+		private static string FileName {
+			get {
+				var type = typeof(T);
+				return string.IsNullOrEmpty(type.Namespace) ? type.Name : $"{type.Namespace}.{type.Name}";
+			}
+		}
 
 		private static T _instance;
 		protected static T Instance {
@@ -19,9 +24,9 @@ namespace EasyTools.Settings {
 #if UNITY_EDITOR
 				if (_instance == null) {
 					_instance = CreateInstance<T>();
-					var dir = Path.GetDirectoryName(AssetDatabase.GetAssetPath(MonoScript.FromScriptableObject(_instance)));
-					if (!AssetDatabase.IsValidFolder($"{dir}/Resources")) AssetDatabase.CreateFolder(dir, "Resources");
-					AssetDatabase.CreateAsset(_instance, $"{dir}/Resources/{FileName}.asset");
+					var path = UnityExtensions.Editor.EnsureFolder("Assets", "Resources") + $"/{FileName}.asset";
+					path = AssetDatabase.GenerateUniqueAssetPath(path);
+					AssetDatabase.CreateAsset(_instance, path);
 					AssetDatabase.SaveAssets();
 					AssetDatabase.Refresh();
 					EditorUtility.SetDirty(_instance);
