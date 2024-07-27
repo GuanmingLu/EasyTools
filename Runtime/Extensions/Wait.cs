@@ -28,18 +28,23 @@ namespace EasyTools {
 	public static class Wait {
 		public static readonly WaitForEndOfFrame EndOffFrame = new();
 
+		private static readonly Dictionary<float, WaitForSeconds> _waitForSeconds = new();
+		public static WaitForSeconds Seconds(float seconds) {
+			if (!_waitForSeconds.ContainsKey(seconds)) _waitForSeconds[seconds] = new(seconds);
+			return _waitForSeconds[seconds];
+		}
+
+		private static readonly Dictionary<float, WaitForSecondsRealtime> _waitForSecondsRealtime = new();
+		public static WaitForSecondsRealtime SecondsUnscaled(float seconds) {
+			if (!_waitForSecondsRealtime.ContainsKey(seconds)) _waitForSecondsRealtime[seconds] = new(seconds);
+			return _waitForSecondsRealtime[seconds];
+		}
+
 		public static IEnumerator Seconds(float seconds, Func<bool> interruption, bool unscaledTime = false) {
 			float time = 0;
 			while (time < seconds) {
 				time += (unscaledTime ? Time.unscaledDeltaTime : Time.deltaTime);
 				if (interruption()) break;
-				yield return null;
-			}
-		}
-		public static IEnumerator Seconds(float seconds, bool unscaledTime = false) {
-			float time = 0;
-			while (time < seconds) {
-				time += (unscaledTime ? Time.unscaledDeltaTime : Time.deltaTime);
 				yield return null;
 			}
 		}
