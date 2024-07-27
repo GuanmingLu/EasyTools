@@ -22,6 +22,14 @@ namespace EasyTools {
 			}
 			return source[key];
 		}
+
+		public static TValue GetOrAdd<TKey, TValue>(this Dictionary<TKey, TValue> source, TKey key, TValue addValue) {
+			if (source.ContainsKey(key)) return source[key];
+			else {
+				source[key] = addValue;
+				return addValue;
+			}
+		}
 	}
 
 	public class AutoInitDict<TKey, TValue> : Dictionary<TKey, TValue> {
