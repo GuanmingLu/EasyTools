@@ -19,7 +19,7 @@ namespace EasyTools.Reflection {
 		public string Name => _member.Name;
 		public string DisplayName => @$"{Name}{_member switch {
 			FieldInfo => " { get; }",
-			MethodInfo method => " ()",
+			MethodInfo => " ()",
 			_ => ""
 		}}";
 		protected GettableValue() { }
@@ -34,7 +34,7 @@ namespace EasyTools.Reflection {
 			return valueType != null && (getValueType?.IsAssignableFrom(valueType) ?? true);
 		}
 
-		internal static GettableValue Create(object target, MemberInfo member, Type getValueType = null)
+		internal static GettableValue TryCreate(object target, MemberInfo member, Type getValueType = null)
 			=> CanCreate(member, getValueType) ? new GettableValue() { _target = target, _member = member } : null;
 
 		public object Get() => _member switch {
@@ -76,7 +76,7 @@ namespace EasyTools.Reflection {
 			return valueType != null && (setValueType == null || valueType.IsAssignableFrom(setValueType));
 		}
 
-		internal static SettableValue Create(object target, MemberInfo member, Type setValueType = null)
+		internal static SettableValue TryCreate(object target, MemberInfo member, Type setValueType = null)
 			=> CanCreate(member, setValueType) ? new SettableValue() { _target = target, _member = member } : null;
 
 		public void Set(object value) {
@@ -134,9 +134,9 @@ namespace EasyTools.Reflection {
 		#region 读取
 
 		public IEnumerable<GettableValue> GetGettableValues(Type valueType = null)
-			=> GetMembers().Select(member => GettableValue.Create(_target, member, valueType)).Where(v => v != null);
+			=> GetMembers().Select(member => GettableValue.TryCreate(_target, member, valueType)).Where(v => v != null);
 		public IEnumerable<GettableValue> GetGettableValues(string memberName, Type valueType = null)
-			=> GetValueMembers(memberName).Select(member => GettableValue.Create(_target, member, valueType)).Where(v => v != null);
+			=> GetValueMembers(memberName).Select(member => GettableValue.TryCreate(_target, member, valueType)).Where(v => v != null);
 		public IEnumerable<GettableValue> GetGettableValues<T>() => GetGettableValues(typeof(T));
 		public IEnumerable<GettableValue> GetGettableValues<T>(string memberName) => GetGettableValues(memberName, typeof(T));
 		public bool TryGet<T>(string name, out T result) => GetGettableValues<T>(name).Select(v => v.Get<T>()).TryGetFirst(out result);
@@ -146,19 +146,21 @@ namespace EasyTools.Reflection {
 		#region 写入
 
 		public IEnumerable<SettableValue> GetSettableValues(Type valueType = null)
-			=> GetMembers().Select(member => SettableValue.Create(_target, member, valueType)).Where(v => v != null);
+			=> GetMembers().Select(member => SettableValue.TryCreate(_target, member, valueType)).Where(v => v != null);
 		public IEnumerable<SettableValue> GetSettableValues(string memberName, Type valueType = null)
-			=> GetValueMembers(memberName).Select(member => SettableValue.Create(_target, member, valueType)).Where(v => v != null);
+			=> GetValueMembers(memberName).Select(member => SettableValue.TryCreate(_target, member, valueType)).Where(v => v != null);
 		public IEnumerable<SettableValue> GetSettableValues<T>() => GetSettableValues(typeof(T));
 		public IEnumerable<SettableValue> GetSettableValues<T>(string memberName) => GetSettableValues(memberName, typeof(T));
-		public bool TrySet<T>(string name, T value) => GetSettableValues<T>(name).TryGetFirst(out var setValue) && True(() => setValue.Set(value));
+		public bool TrySet<T>(string name, T value) {
+			var setValue = GetSettableValues<T>(name).GetFirstOrNull();
+			if (setValue != null) {
+				setValue.Set(value);
+				return true;
+			}
+			else return false;
+		}
 
 		#endregion
-
-		private bool True(Action action) {
-			action();
-			return true;
-		}
 	}
 
 	/// <summary>
