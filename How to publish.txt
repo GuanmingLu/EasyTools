@@ -1,0 +1,15 @@
+`git subtree split --prefix=Assets/Plugins/EasyTools --branch upm`
+`git push github upm`
+
+Update version:
+`git subtree split`
+
+or you can add a tag:
+`git tag 1.0.0 upm`
+and then push:
+`git push origin upm --tags`
+
+
+To install:
+"com.guanming.easytools": "https://github.com/GuanmingLu/EasyTools.git#upm"
+or https://ghproxy.net/https://github.com/GuanmingLu/EasyTools.git#upm
