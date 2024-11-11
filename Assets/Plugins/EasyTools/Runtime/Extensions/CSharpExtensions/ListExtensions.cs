@@ -63,6 +63,15 @@ namespace EasyTools {
 			return false;
 		}
 
+#nullable enable
+		public static T? GetFirstOrNull<T>(this IEnumerable<T> source) {
+			foreach (var item in source) {
+				return item;
+			}
+			return default;
+		}
+#nullable restore
+
 		public static bool TryGetFirst<T>(this IEnumerable<T> source, out T first, Func<T, bool> predicate)
 			=> source.Where(predicate).TryGetFirst(out first);
 

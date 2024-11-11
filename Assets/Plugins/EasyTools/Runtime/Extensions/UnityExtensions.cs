@@ -13,11 +13,11 @@ namespace EasyTools {
 	/// 扩展各种方法便于使用
 	/// </summary>
 	public static class UnityExtensions {
-		public static bool TryGetComponentInChildren<T>(this Component self, out T component) {
+		public static bool TryGetComponentInChildren<T>(this Component self, out T component) where T : Component {
 			component = self.GetComponentInChildren<T>();
 			return component != null;
 		}
-		public static bool TryGetComponentInChildren<T>(this GameObject self, out T component) {
+		public static bool TryGetComponentInChildren<T>(this GameObject self, out T component) where T : Component {
 			component = self.GetComponentInChildren<T>();
 			return component != null;
 		}
@@ -71,7 +71,7 @@ namespace EasyTools {
 			if (self != null) UnityEngine.Object.Destroy(self);
 		}
 
-		public static void DestroySelf(this Component self) {
+		public static void DestroyGameObject(this Component self) {
 			if (self != null && self.gameObject != null) UnityEngine.Object.Destroy(self.gameObject);
 		}
 
@@ -103,10 +103,12 @@ namespace EasyTools {
 		public static void Deconstruct(this Vector3 self, out float x, out float y, out float z) { x = self.x; y = self.y; z = self.z; }
 		public static void Deconstruct(this Vector3Int self, out int x, out int y, out int z) { x = self.x; y = self.y; z = self.z; }
 
+#nullable enable
 		/// <summary>
 		/// 如果对象==null，则返回真正的null
 		/// </summary>
-		public static T NullCheck<T>(this T self) where T : UnityEngine.Object => self == null ? null : self;
+		public static T? NullCheck<T>(this T self) where T : UnityEngine.Object => self == null ? null : self;
+#nullable restore
 
 #if UNITY_EDITOR
 
