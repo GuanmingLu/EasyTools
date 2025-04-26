@@ -12,8 +12,16 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: d0f1287a73463474d9c3f0785c42b990, type: 3}
   m_Name: EasyToolsSettings
   m_EditorClassIdentifier: 
-  avatarMap:
+  m_showScrollLog: 0
+  m_avatarMap:
     m_keys: []
     m_values: []
-  _dontDestroyOnLoad: []
-  _onSceneLoaded: []
+  m_characterInterval: 0.02
+  m_nextKeys: 2000000043010000
+  m_dontDestroyOnLoad: []
+  m_onSceneLoaded: []
+  m_staticReferences:
+    m_json: '{}'
+    m_objDict:
+      m_keys: []
+      m_values: []

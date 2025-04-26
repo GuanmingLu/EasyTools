@@ -20,4 +20,14 @@ public class Test : MonoBehaviour {
 		Debug.Log(Path.GetFullPath("Packages/com.unity.textmeshpro"));
 		Debug.Log(Path.GetFullPath(assetPath));
 	}
+
+	// [SerializeField] private static int s_testInt;
+	// [SerializeField] private static string s_testStr;
+	// [SerializeField] private static GameObject s_testGameObject;
+
+	// private void Start() {
+	// 	Debug.Log(s_testInt);
+	// 	Debug.Log(s_testStr);
+	// 	Instantiate(s_testGameObject);
+	// }
 }
