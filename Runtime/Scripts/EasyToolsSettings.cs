@@ -29,12 +29,6 @@ namespace EasyTools.Settings {
 			}
 		}
 
-
-		[RuntimeInitializeOnLoadMethod(RuntimeInitializeLoadType.BeforeSceneLoad)]
-		private static void Init() {
-			Instance.InstantiateOnStartup();
-		}
-
 		#region 滚动消息
 
 		[Header("滚动消息")]
@@ -66,10 +60,11 @@ namespace EasyTools.Settings {
 		[SerializeField] private GameObject[] m_dontDestroyOnLoad;
 		[SerializeField] private GameObject[] m_onSceneLoaded;
 
-		private void InstantiateOnStartup() {
-			SceneManager.sceneLoaded += InstantiateOnSceneLoaded;
+		[RuntimeInitializeOnLoadMethod(RuntimeInitializeLoadType.BeforeSceneLoad)]
+		private static void InstantiateOnStartup() {
+			SceneManager.sceneLoaded += Instance.InstantiateOnSceneLoaded;
 
-			foreach (var item in m_dontDestroyOnLoad) {
+			foreach (var item in Instance.m_dontDestroyOnLoad) {
 				if (item != null) DontDestroyOnLoad(Instantiate(item));
 			}
 		}
@@ -82,6 +77,15 @@ namespace EasyTools.Settings {
 
 		#endregion
 
+		#region 静态引用
+
+		[Header("静态引用")]
+		[SerializeField] private StaticReferences m_staticReferences;
+
+		[RuntimeInitializeOnLoadMethod(RuntimeInitializeLoadType.AfterAssembliesLoaded)]
+		private static void ApplyStaticReferences() => Instance.m_staticReferences.SetAllValues();
+
+		#endregion
 
 #if UNITY_EDITOR
 		[MenuItem("EasyTools/Settings", false, int.MaxValue)]

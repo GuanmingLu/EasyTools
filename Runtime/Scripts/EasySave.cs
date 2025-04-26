@@ -5,6 +5,7 @@ using UnityEngine;
 using System.Reflection;
 using System.Threading.Tasks;
 using Newtonsoft.Json.Linq;
+using Newtonsoft.Json;
 
 namespace EasyTools {
 
@@ -77,7 +78,7 @@ namespace EasyTools {
 					FieldInfo field => field.GetValue(null),
 					PropertyInfo prop => prop.GetValue(null),
 					_ => null
-				});
+				}, JsonSerializer.Create(JsonExtensions.DefaultSettings));
 			}
 			// TODO 异步保存
 			File.WriteAllText(GetFilePath(fileName), data.ToString());

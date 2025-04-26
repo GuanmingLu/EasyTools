@@ -40,7 +40,52 @@ namespace EasyTools.Editor {
 					return EditorGUI.ObjectField(position, label, value as UnityEngine.Object, valueType, true);
 				if (value is null) {
 					try {
-						value = Activator.CreateInstance(valueType);
+						if (valueType == typeof(string)) value = "";
+						else value = Activator.CreateInstance(valueType);
+					}
+					catch { }
+				}
+				if (TryGetPropDrawer(valueType, out var drawer)) {
+					drawer.OnGUI(position, value, label);
+					return value;
+				}
+			}
+
+			return value switch {
+				null => new Func<object>(() => { EditorGUI.LabelField(position, label, "null"); return value; }).Invoke(),
+				Enum e => EditorGUI.EnumPopup(position, label, e),
+				bool b => EditorGUI.Toggle(position, label, b),
+				byte or sbyte or short or ushort or int or uint => EditorGUI.IntField(position, label, (int)value),
+				long or ulong => EditorGUI.LongField(position, label, (long)value),
+				float or double or decimal => EditorGUI.FloatField(position, label, (float)value),
+				string s => EditorGUI.TextField(position, label, s),
+				Color c => EditorGUI.ColorField(position, label, c),
+				Color32 c32 => EditorGUI.ColorField(position, label, c32),
+				LayerMask l => EditorGUI.LayerField(position, label, l),
+				Vector2 v2 => EditorGUI.Vector2Field(position, label, v2),
+				Vector3 v3 => EditorGUI.Vector3Field(position, label, v3),
+				Vector4 v4 => EditorGUI.Vector4Field(position, label, v4),
+				Rect r => EditorGUI.RectField(position, label, r),
+				AnimationCurve ac => EditorGUI.CurveField(position, label, ac),
+				Bounds b => EditorGUI.BoundsField(position, label, b),
+				Quaternion q => EditorGUI.Vector3Field(position, label, q.eulerAngles),
+				Vector2Int v2i => EditorGUI.Vector2IntField(position, label, v2i),
+				Vector3Int v3i => EditorGUI.Vector3IntField(position, label, v3i),
+				RectInt ri => EditorGUI.RectIntField(position, label, ri),
+				BoundsInt bi => EditorGUI.BoundsIntField(position, label, bi),
+				Gradient g => EditorGUI.GradientField(position, label, g),
+				_ => Do(() => { EditorGUI.LabelField(position, label, value?.ToString() ?? "null"); return value; }),
+			};
+		}
+
+		public static object ValueField(Rect position, GUIContent label, object value, Type valueType = null) {
+			if (valueType != null) {
+				if (typeof(UnityEngine.Object).IsAssignableFrom(valueType))
+					return EditorGUI.ObjectField(position, label, value as UnityEngine.Object, valueType, true);
+				if (value is null) {
+					try {
+						if (valueType == typeof(string)) value = "";
+						else value = Activator.CreateInstance(valueType);
 					}
 					catch { }
 				}
@@ -78,14 +123,21 @@ namespace EasyTools.Editor {
 		}
 
 		public static object ValueFieldLayout(string label, object value, Type valueType = null) {
-			if (typeof(UnityEngine.Object).IsAssignableFrom(valueType))
-				return EditorGUILayout.ObjectField(label, value as UnityEngine.Object, valueType, true);
-
-			if (value is null && valueType != null) {
-				try {
-					value = Activator.CreateInstance(valueType);
+			if (valueType != null) {
+				if (typeof(UnityEngine.Object).IsAssignableFrom(valueType))
+					return EditorGUILayout.ObjectField(label, value as UnityEngine.Object, valueType, true);
+				if (value is null) {
+					try {
+						if (valueType == typeof(string)) value = "";
+						else value = Activator.CreateInstance(valueType);
+					}
+					catch { }
 				}
-				catch { }
+				if (TryGetPropDrawer(valueType, out var drawer)) {
+					var position = EditorGUILayout.GetControlRect(true, drawer.GetPropertyHeight(value, label));
+					drawer.OnGUI(position, value, label);
+					return value;
+				}
 			}
 
 			return value switch {
@@ -113,5 +165,50 @@ namespace EasyTools.Editor {
 				_ => Do(() => { EditorGUILayout.LabelField(label, value?.ToString() ?? "null"); return value; }),
 			};
 		}
+
+		public static object ValueFieldLayout(GUIContent label, object value, Type valueType = null) {
+			if (valueType != null) {
+				if (typeof(UnityEngine.Object).IsAssignableFrom(valueType))
+					return EditorGUILayout.ObjectField(label, value as UnityEngine.Object, valueType, true);
+				if (value is null) {
+					try {
+						if (valueType == typeof(string)) value = "";
+						else value = Activator.CreateInstance(valueType);
+					}
+					catch { }
+				}
+				if (TryGetPropDrawer(valueType, out var drawer)) {
+					var position = EditorGUILayout.GetControlRect(true, drawer.GetPropertyHeight(value, label));
+					drawer.OnGUI(position, value, label);
+					return value;
+				}
+			}
+
+			return value switch {
+				Enum e => EditorGUILayout.EnumPopup(label, e),
+				bool b => EditorGUILayout.Toggle(label, b),
+				byte or sbyte or short or ushort or int or uint => EditorGUILayout.IntField(label, (int)value),
+				long or ulong => EditorGUILayout.LongField(label, (long)value),
+				float or double or decimal => EditorGUILayout.FloatField(label, (float)value),
+				string s => EditorGUILayout.TextField(label, s),
+				Color c => EditorGUILayout.ColorField(label, c),
+				Color32 c32 => EditorGUILayout.ColorField(label, c32),
+				LayerMask l => EditorGUILayout.LayerField(label, l),
+				Vector2 v2 => EditorGUILayout.Vector2Field(label, v2),
+				Vector3 v3 => EditorGUILayout.Vector3Field(label, v3),
+				Vector4 v4 => EditorGUILayout.Vector4Field(label, v4),
+				Rect r => EditorGUILayout.RectField(label, r),
+				AnimationCurve ac => EditorGUILayout.CurveField(label, ac),
+				Bounds b => EditorGUILayout.BoundsField(label, b),
+				Quaternion q => EditorGUILayout.Vector3Field(label, q.eulerAngles),
+				Vector2Int v2i => EditorGUILayout.Vector2IntField(label, v2i),
+				Vector3Int v3i => EditorGUILayout.Vector3IntField(label, v3i),
+				RectInt ri => EditorGUILayout.RectIntField(label, ri),
+				BoundsInt bi => EditorGUILayout.BoundsIntField(label, bi),
+				Gradient g => EditorGUILayout.GradientField(label, g),
+				_ => Do(() => { EditorGUILayout.LabelField(label, value?.ToString() ?? "null"); return value; }),
+			};
+		}
+
 	}
 }

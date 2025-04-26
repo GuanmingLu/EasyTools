@@ -156,6 +156,11 @@ namespace EasyTools {
 			return false;
 		}
 
+#nullable enable
+		public static T? GetOrNull<T>(this IEnumerable<T> source, int index)
+			=> 0 <= index && index < source.Count() ? source.ElementAt(index) : default;
+#nullable restore
+
 		public static void Shuffle<T>(this IList<T> source) {
 			for (int i = 0; i < source.Count; i++) {
 				int j = RandInt(i, source.Count);
