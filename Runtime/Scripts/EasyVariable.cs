@@ -8,7 +8,7 @@ namespace EasyTools {
 		private static Dictionary<string, object> dict;
 
 		public static bool Reload() {
-			var path = "/EasyTools/Variables.json";
+			var path = "EasyTools/Variables.json";
 			if (!StreamingAssetsReader.IsFile(path)) {
 				Debug.LogError("EasyTools/Variables.json文件不存在");
 				return false;
