@@ -51,23 +51,23 @@ namespace EasyTools {
 		public static bool IsFile(string relativePath) => GetTree(relativePath)?.Type == JTokenType.Integer;
 		public static bool IsDirectory(string relativePath) => GetTree(relativePath)?.Type == JTokenType.Object;
 
-		private static IEnumerable<JProperty> EnumerateProperties(string relativePath) {
+		private static IEnumerable<(string path, JProperty prop)> EnumerateProperties(string relativePath, bool recursive) {
 			var tree = GetTree(relativePath);
 			if (tree?.Type == JTokenType.Object)
-				return tree.Value<JObject>().Properties();
-			else return Enumerable.Empty<JProperty>();
+				foreach (var (path, prop) in tree.Value<JObject>().EnumerateProperties(recursive))
+					yield return (Path.Combine(path.Insert(relativePath, 0)).ToPath(), prop);
 		}
 
-		public static IEnumerable<string> Enumerate(string relativePath) => EnumerateProperties(relativePath)
-			.Select(p => Path.Combine(relativePath, p.Name).ToPath()).OrderBy(p => p);
+		public static IEnumerable<string> Enumerate(string relativePath, bool recursive = false)
+			=> EnumerateProperties(relativePath, recursive).Select(p => p.path).OrderBy(p => p);
 
-		public static IEnumerable<string> EnumerateDirectories(string relativePath)
-			=> EnumerateProperties(relativePath).Where(p => p.Value.Type == JTokenType.Object)
-				.Select(p => Path.Combine(relativePath, p.Name).ToPath()).OrderBy(p => p);
+		public static IEnumerable<string> EnumerateDirectories(string relativePath, bool recursive = false)
+			=> EnumerateProperties(relativePath, recursive).Where(p => p.prop.Value.Type == JTokenType.Object)
+				.Select(p => p.path).OrderBy(p => p);
 
-		public static IEnumerable<string> EnumerateFiles(string relativePath)
-			=> EnumerateProperties(relativePath).Where(p => p.Value.Type == JTokenType.Integer)
-				.Select(p => Path.Combine(relativePath, p.Name).ToPath()).OrderBy(p => p);
+		public static IEnumerable<string> EnumerateFiles(string relativePath, bool recursive = false)
+			=> EnumerateProperties(relativePath, recursive).Where(p => p.prop.Value.Type == JTokenType.Integer)
+				.Select(p => p.path).OrderBy(p => p);
 
 #if UNITY_EDITOR
 		[UnityEditor.Callbacks.DidReloadScripts]

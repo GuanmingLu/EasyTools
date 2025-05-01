@@ -16,13 +16,16 @@ namespace EasyTools {
 
 		private static Dictionary<string, JToken> _lib;
 		private static bool Reload() {
-			var path = Application.streamingAssetsPath + $"/EasyTools/Localization/{CurrentLang}";
+			var path = $"EasyTools/Localization/{CurrentLang}";
 			var pathLen = path.Length + 1;
-			if (!Directory.Exists(path)) return false;
+			if (!StreamingAssetsReader.IsDirectory(path)) return false;
 			if (_lib == null) _lib = new();
 			else _lib.Clear();
-			foreach (var fileName in Directory.EnumerateFiles(path, "*.json", SearchOption.AllDirectories)) {
-				_lib[fileName.Replace('\\', '/')[pathLen..^5]] = JToken.Parse(File.ReadAllText(fileName));
+			foreach (var filePath in StreamingAssetsReader.EnumerateFiles(path, true)) {
+				try {
+					_lib[Path.GetFileNameWithoutExtension(filePath)] = JToken.Parse(StreamingAssetsReader.ReadAllText(filePath));
+				}
+				catch { }
 			}
 			return true;
 		}

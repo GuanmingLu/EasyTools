@@ -1,4 +1,5 @@
 using System;
+using System.Collections.Generic;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
 
@@ -20,6 +21,19 @@ namespace EasyTools {
 			}
 			value = default;
 			return false;
+		}
+
+		public static IEnumerable<(string[] path, JProperty property)> EnumerateProperties(this JObject obj, bool recursive) {
+			foreach (var prop in obj.Properties()) {
+				var name = prop.Name;
+				yield return (new[] { name }, prop);
+				var value = prop.Value;
+				if (recursive && value.Type == JTokenType.Object) {
+					foreach (var (chPath, chProp) in value.Value<JObject>().EnumerateProperties(recursive)) {
+						yield return (chPath.Insert(name, 0), chProp);
+					}
+				}
+			}
 		}
 	}
 }

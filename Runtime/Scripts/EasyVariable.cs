@@ -8,13 +8,12 @@ namespace EasyTools {
 		private static Dictionary<string, object> dict;
 
 		public static bool Reload() {
-			var path = Application.streamingAssetsPath + $"/EasyTools/Variables.json";
-			if (!File.Exists(path)) {
+			var path = "/EasyTools/Variables.json";
+			if (!StreamingAssetsReader.IsFile(path)) {
 				Debug.LogError("EasyTools/Variables.json文件不存在");
 				return false;
 			}
-			// TODO 异步读取
-			var json = File.ReadAllText(path);
+			var json = StreamingAssetsReader.ReadAllText(path);
 			dict = json.FromJson<Dictionary<string, object>>();
 			return true;
 		}
